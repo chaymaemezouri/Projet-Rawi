@@ -1,0 +1,61 @@
+{
+  "synthetic": true,
+  "purpose": "Exemples fictifs pour les futurs tests NLP et data. Ce ne sont pas des récits collectés auprès de personnes réelles.",
+  "stories": [
+    {
+      "id": "sample-fatima-rhassoul",
+      "synthetic": true,
+      "title": "Masque au rhassoul",
+      "narrator_name": "Lalla Fatima",
+      "narrator_role": "grandmother",
+      "source": "oral",
+      "language": "fr",
+      "category_slug": "masque-visage",
+      "original_content": "Ma grand-mère préparait le masque au rhassoul pour la peau. Elle prenait 3 cuillères à soupe de rhassoul et les versait dans un bol en terre. Elle ajoutait 1 verre d'eau de rose tiède. Elle mélangeait bien jusqu'à obtenir une pâte lisse. Elle ajoutait 1 cuillère à café de miel et 2 gouttes d'huile d'argan. Elle appliquait le masque sur le visage en évitant les yeux. Elle laissait reposer 15 minutes. Ensuite elle rinçait à l'eau tiède et séchait doucement."
+    },
+    {
+      "id": "sample-brahim-rhassoul",
+      "synthetic": true,
+      "title": "Masque au rhassoul du souk",
+      "narrator_name": "Hajj Brahim",
+      "narrator_role": "achaba",
+      "source": "oral",
+      "language": "fr",
+      "category_slug": "masque-visage",
+      "original_content": "Pour le masque au rhassoul, je broie le rhassoul et j'en prends 4 cuillères à soupe. Je verse 1 verre d'eau de fleur d'oranger tiède. Je mélange avec les doigts jusqu'à une pâte souple. J'ajoute 1 cuillère à soupe de miel et 1 pincée de nigelle. J'applique sur le visage et le cou. Je laisse agir 20 minutes. Je rince à l'eau tiède et je sèche."
+    },
+    {
+      "id": "sample-khadija-ghassoul",
+      "synthetic": true,
+      "title": "Ghassoul du hammam",
+      "narrator_name": "Khadija",
+      "narrator_role": "hammam_practitioner",
+      "source": "oral",
+      "language": "fr",
+      "category_slug": "masque-visage",
+      "original_content": "Mélanger 3 cuillères à soupe de ghassoul avec de l'eau de rose. Ajouter 1 cuillère à café d'huile d'argan et 1 cuillère à café de citron. Appliquer sur le visage. Laisser reposer 10 minutes. Rincer à l'eau tiède."
+    },
+    {
+      "id": "sample-zahra-hammam",
+      "synthetic": true,
+      "title": "Gommage du hammam",
+      "narrator_name": "Lalla Zahra",
+      "narrator_role": "grandmother",
+      "source": "oral",
+      "language": "fr",
+      "category_slug": "gommage-hammam",
+      "original_content": "Pour le gommage du hammam, je prends 2 cuillères à soupe de savon beldi. J'ajoute 1 cuillère à soupe d'huile d'olive. Je mélange bien. J'applique sur le corps humide. Je laisse agir 10 minutes. Ensuite je frotte avec le kessa et je rince à l'eau tiède."
+    },
+    {
+      "id": "sample-aicha-henne",
+      "synthetic": true,
+      "title": "Soin des cheveux au henné",
+      "narrator_name": "Lalla Aïcha",
+      "narrator_role": "practitioner",
+      "source": "written",
+      "language": "fr",
+      "category_slug": "soin-cheveux",
+      "original_content": "Pour le soin des cheveux au henné, je prends 5 cuillères à soupe de henné. Je verse de l'eau tiède et je mélange jusqu'à une pâte épaisse. J'applique sur les cheveux. Je laisse reposer 30 minutes. Je rince à l'eau tiède."
+    }
+  ]
+}

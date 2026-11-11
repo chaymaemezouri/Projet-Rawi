@@ -1,0 +1,70 @@
+name: rawi
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rawi
+      POSTGRES_PASSWORD: rawi
+      POSTGRES_DB: rawi
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - rawi_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rawi -d rawi"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ENVIRONMENT: development
+      DATABASE_URL: postgresql+psycopg://rawi:rawi@db:5432/rawi
+      JWT_SECRET: change-me-in-local-env-only
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "720"
+      CORS_ORIGINS: http://localhost:5173
+      ADMIN_EMAIL: admin@rawi.local
+      ADMIN_PASSWORD: change-me-admin
+      ADMIN_NAME: Administrateur RAWI
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      VITE_PROXY_TARGET: http://backend:8000
+      CHOKIDAR_USEPOLLING: "true"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - rawi_frontend_modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  rawi_pg:
+  rawi_frontend_modules:
