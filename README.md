@@ -54,7 +54,7 @@ python -m venv .venv
 .\.venv\Scripts\uvicorn app.main:app --reload
 ```
 
-Si le port 5432 est déjà occupé, définissez `$env:POSTGRES_PORT="5434"` avant `docker compose` et pointez `DATABASE_URL` vers `localhost:5434`. Le backend lancé dans Compose joint PostgreSQL par le réseau interne, sans dépendre de ce port.
+PostgreSQL est publié sur le port **55432** (5432 et 5433 sont déjà utilisés sur cette machine). L’interface est sur le port **5174**.
 
 Dans un second terminal :
 
@@ -64,7 +64,7 @@ npm install
 npm run dev
 ```
 
-- Application : <http://localhost:5173>
+- Application : <http://localhost:5174>
 - API : <http://localhost:8000/docs>
 
 Le fichier `.env` n'est pas versionné. Les valeurs d'exemple créent, au premier démarrage hors tests, un administrateur `admin@rawi.local` / `change-me-admin`. Changez-les avant tout usage autre que votre machine.

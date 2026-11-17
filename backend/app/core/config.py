@@ -5,11 +5,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     environment: str = "development"
-    database_url: str = "postgresql+psycopg://rawi:rawi@localhost:5432/rawi"
+    database_url: str = "postgresql+psycopg://rawi:rawi@localhost:55432/rawi"
     jwt_secret: str = "change-me-in-local-env-only"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 720
-    cors_origins: str = "http://localhost:5173"
+    cors_origins: str = "http://localhost:5174"
     admin_email: str | None = None
     admin_password: str | None = None
     admin_name: str = "Administrateur RAWI"

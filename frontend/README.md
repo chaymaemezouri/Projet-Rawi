@@ -10,4 +10,4 @@ npm run lint
 npm run build
 ```
 
-L'application est sur <http://localhost:5173>. Le backend doit être joignable sur le port 8000, sauf si `VITE_PROXY_TARGET` indique une autre adresse.
+L'application est sur <http://localhost:5174>. Le backend doit être joignable sur le port 8000, sauf si `VITE_PROXY_TARGET` indique une autre adresse.

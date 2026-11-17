@@ -5,7 +5,7 @@ os.environ["JWT_SECRET"] = "test-secret-key-not-for-production"
 os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["ADMIN_EMAIL"] = ""
 os.environ["ADMIN_PASSWORD"] = ""
-os.environ["CORS_ORIGINS"] = "http://localhost:5173"
+os.environ["CORS_ORIGINS"] = "http://localhost:5174"
 
 import pytest
 from fastapi.testclient import TestClient

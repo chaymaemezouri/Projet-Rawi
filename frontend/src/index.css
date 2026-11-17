@@ -5,54 +5,174 @@
 @layer base {
   html {
     @apply bg-cream text-ink;
+    scroll-behavior: smooth;
   }
 
   body {
-    @apply min-h-screen font-sans antialiased;
-    background-image:
-      linear-gradient(30deg, rgba(47, 107, 79, 0.045) 12%, transparent 12.5%, transparent 87%, rgba(47, 107, 79, 0.045) 87.5%),
-      linear-gradient(150deg, rgba(200, 121, 58, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(200, 121, 58, 0.05) 87.5%);
-    background-size: 42px 72px;
+    @apply min-h-screen bg-cream font-sans antialiased;
+  }
+
+  html[dir="rtl"] body {
+    font-family: "Noto Naskh Arabic", "Segoe UI", Tahoma, serif;
   }
 
   h1,
   h2,
   h3 {
-    @apply font-serif;
+    @apply font-serif font-medium tracking-tight;
+  }
+
+  html[dir="rtl"] h1,
+  html[dir="rtl"] h2,
+  html[dir="rtl"] h3,
+  html[dir="rtl"] .kicker {
+    font-family: "Noto Naskh Arabic", "Cormorant Garamond", serif;
+    letter-spacing: 0;
   }
 
   :focus-visible {
-    outline: 2px solid #2f6b4f;
-    outline-offset: 2px;
+    outline: 2px solid #702230;
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #d7b77c;
+    color: #302820;
   }
 }
 
 @layer components {
   .container-page {
-    @apply mx-auto w-full max-w-6xl px-4;
+    @apply mx-auto w-full max-w-[76rem] px-5 sm:px-8;
+  }
+
+  .kicker {
+    @apply text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-clay-ink;
   }
 
   .btn {
-    @apply inline-flex items-center justify-center rounded-full bg-forest px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center rounded-full bg-forest px-6 py-3 text-sm font-medium text-cream transition hover:bg-forest-dark disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-forest bg-paper px-5 py-2.5 text-sm font-semibold text-forest transition hover:bg-forest/5;
+    @apply inline-flex items-center justify-center rounded-full border border-ink/15 bg-paper px-6 py-3 text-sm font-medium text-ink transition hover:border-forest hover:text-forest;
+  }
+
+  .btn-light {
+    @apply inline-flex items-center justify-center rounded-full bg-cream px-6 py-3 text-sm font-medium text-forest transition hover:bg-paper;
   }
 
   .btn-danger {
-    @apply inline-flex items-center justify-center rounded-full border border-danger px-5 py-2.5 text-sm font-semibold text-danger transition hover:bg-danger/5;
+    @apply inline-flex items-center justify-center rounded-full border border-danger/30 bg-paper px-6 py-3 text-sm font-medium text-danger transition hover:bg-danger/5;
   }
 
   .card {
-    @apply rounded-3xl border border-line bg-paper p-5 shadow-card;
+    @apply rounded-[1.75rem] border border-line bg-paper p-6 shadow-card;
+  }
+
+  .lift {
+    transition: transform 0.45s ease, box-shadow 0.45s ease;
+  }
+
+  .lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 44px rgba(48, 40, 32, 0.08);
   }
 
   .field {
-    @apply w-full rounded-2xl border border-line bg-white px-3 py-2.5 text-ink outline-none ring-forest/30 placeholder:text-muted/70 focus:ring-2;
+    @apply w-full rounded-2xl border border-line bg-paper px-4 py-3 text-ink outline-none ring-forest/25 placeholder:text-muted/60 focus:ring-2;
   }
 
   .label {
-    @apply mb-1.5 block text-sm font-semibold text-ink;
+    @apply mb-2 block text-sm font-medium text-ink;
+  }
+
+  .skip-link {
+    @apply absolute start-4 top-0 z-50 -translate-y-full rounded-full bg-forest px-4 py-2 text-sm text-cream;
+  }
+
+  .skip-link:focus {
+    @apply top-4 translate-y-0;
+  }
+
+  .zoom-frame {
+    @apply overflow-hidden;
+  }
+
+  .zoom-frame img {
+    transition: transform 0.8s ease;
+  }
+
+  .zoom-frame:hover img {
+    transform: scale(1.045);
+  }
+
+  .universe-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  @media (min-width: 768px) {
+    .universe-grid {
+      grid-template-columns: 1.35fr 1fr 1fr;
+      grid-template-areas:
+        "face hair hammam"
+        "face oils hammam"
+        "plants plants plants";
+    }
+
+    .area-face { grid-area: face; min-height: 34rem; }
+    .area-hair { grid-area: hair; min-height: 16.5rem; }
+    .area-hammam { grid-area: hammam; }
+    .area-oils { grid-area: oils; min-height: 16.5rem; }
+    .area-plants { grid-area: plants; min-height: 18rem; }
+  }
+}
+
+.audio-live {
+  position: relative;
+}
+
+.audio-live::before,
+.audio-live::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid #be7958;
+  animation: rawi-pulse 1.8s ease-out infinite;
+}
+
+.audio-live::after {
+  animation-delay: 0.55s;
+}
+
+@keyframes rawi-pulse {
+  from {
+    transform: scale(0.55);
+    opacity: 0.65;
+  }
+  to {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .lift:hover {
+    transform: none;
   }
 }

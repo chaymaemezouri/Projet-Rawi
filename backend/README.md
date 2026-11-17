@@ -11,6 +11,6 @@ copy ..\.env.example ..\.env
 .\.venv\Scripts\pytest
 ```
 
-PostgreSQL doit écouter sur `localhost:5432`, ou bien seul le service `db` de Docker Compose est démarré.
+PostgreSQL doit écouter sur `localhost:55432`, ou bien seul le service `db` de Docker Compose est démarré.
 
 Swagger : <http://localhost:8000/docs>.

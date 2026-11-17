@@ -10,7 +10,7 @@ export function ModuleStatusPanel({ status, message, disclaimer }: ModuleStatusP
   const { t } = useTranslation();
   return (
     <article className="card space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-clay">{t("module.notReady")}</p>
+      <p className="kicker">{t("module.notReady")}</p>
       <p data-testid="module-status" className="text-sm text-muted">
         {status}
       </p>

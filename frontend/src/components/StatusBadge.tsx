@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import type { ValidationStatus } from "../types";
 
 const STYLES: Record<ValidationStatus, string> = {
-  pending: "bg-clay/15 text-clay",
+  pending: "bg-gold/30 text-clay-ink",
   validated: "bg-forest/10 text-forest",
   rejected: "bg-danger/10 text-danger",
 };

@@ -1,9 +1,11 @@
 import { FormEvent, useState } from "react";
+import { Link } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { createCategory, fetchCategories } from "../api/resources";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
+import { EmptyState, ErrorState, LoadingState, SectionHeading } from "../components/ui/Chrome";
 import { categoryDescription, categoryName } from "../lib/format";
 
 const EMPTY_FORM = {
@@ -15,6 +17,8 @@ const EMPTY_FORM = {
   description_ar: "",
   description_ary: "",
 };
+
+const PHOTOS = ["/images/rawi-botanical.jpg", "/images/rawi-ritual.jpg", "/images/rawi-library.jpg", "/images/rawi-hero.jpg"];
 
 export function CategoriesPage() {
   const { t, i18n } = useTranslation();
@@ -40,24 +44,34 @@ export function CategoriesPage() {
   }
 
   return (
-    <section className="container-page py-10">
-      <h1 className="text-4xl">{t("category.title")}</h1>
-      <p className="mt-3 max-w-2xl text-muted">{t("category.lead")}</p>
-      {categories.isLoading ? <p className="mt-8 text-muted">{t("common.loading")}</p> : null}
-      {categories.isError ? <p className="mt-8 text-danger">{t("common.error")}</p> : null}
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        {categories.data?.map((category) => (
-          <article key={category.id} className="card">
-            <p className="text-xs uppercase tracking-wide text-clay">{category.slug}</p>
-            <h2 className="mt-2 text-2xl">{categoryName(category, i18n.language)}</h2>
-            <p className="mt-3 text-sm leading-6 text-muted">{categoryDescription(category, i18n.language)}</p>
+    <section className="container-page py-12 md:py-16">
+      <SectionHeading as="h1" kicker={t("design.libraryKicker")} title={t("category.title")} text={t("category.lead")} />
+      {categories.isLoading ? <LoadingState label={t("common.loading")} /> : null}
+      {categories.isError ? <ErrorState label={t("common.error")} /> : null}
+      {categories.data && categories.data.length === 0 ? (
+        <div className="mt-8">
+          <EmptyState title={t("story.empty")} />
+        </div>
+      ) : null}
+      <div className="mt-8 grid gap-5 md:grid-cols-2">
+        {categories.data?.map((category, index) => (
+          <article key={category.id} className="card lift overflow-hidden p-0">
+            <img src={PHOTOS[index % PHOTOS.length]} alt="" className="h-48 w-full object-cover" />
+            <div className="p-6">
+              <p className="kicker">{category.slug}</p>
+              <h2 className="mt-3 text-3xl">{categoryName(category, i18n.language)}</h2>
+              <p className="mt-3 text-sm leading-7 text-muted">{categoryDescription(category, i18n.language)}</p>
+              <Link className="btn-secondary mt-5" to={user ? `/stories?category=${category.id}` : "/login"}>
+                {user ? t("design.readStories") : t("design.signInToRead")}
+              </Link>
+            </div>
           </article>
         ))}
       </div>
 
       {user?.role === "admin" ? (
-        <form onSubmit={onSubmit} className="card mt-10 grid gap-4 md:grid-cols-2" aria-label={t("category.adminTitle")}>
-          <h2 className="text-2xl md:col-span-2">{t("category.adminTitle")}</h2>
+        <form onSubmit={onSubmit} className="card mt-12 grid gap-4 md:grid-cols-2" aria-label={t("category.adminTitle")}>
+          <h2 className="text-3xl md:col-span-2">{t("category.adminTitle")}</h2>
           {(
             [
               ["slug", "category.slug"],
@@ -79,7 +93,11 @@ export function CategoriesPage() {
               />
             </label>
           ))}
-          {error ? <p role="alert" className="text-sm text-danger md:col-span-2">{error}</p> : null}
+          {error ? (
+            <p role="alert" className="text-sm text-danger md:col-span-2">
+              {error}
+            </p>
+          ) : null}
           <button className="btn md:col-span-2" type="submit" disabled={mutation.isPending}>
             {t("category.create")}
           </button>

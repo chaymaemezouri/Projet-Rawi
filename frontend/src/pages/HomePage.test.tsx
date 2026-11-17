@@ -16,7 +16,7 @@ describe("HomePage", () => {
 
   it("presents the project without a medical claim", async () => {
     renderPage(<HomePage />);
-    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/récits/i);
+    expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/histoire/i);
     expect(await screen.findByText(/validation médicale/i)).toBeInTheDocument();
     expect(screen.queryByText(/\/\s*100/)).not.toBeInTheDocument();
   });

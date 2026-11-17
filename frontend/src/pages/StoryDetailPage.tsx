@@ -6,6 +6,7 @@ import { addFavorite, deleteStory, fetchStory, removeFavorite, setValidation } f
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { StatusBadge } from "../components/StatusBadge";
+import { ErrorState, LoadingState } from "../components/ui/Chrome";
 import { categoryName, formatDate } from "../lib/format";
 import type { ValidationStatus } from "../types";
 
@@ -57,33 +58,46 @@ export function StoryDetailPage() {
     onError: (caught) => setError(getErrorMessage(caught, t("common.error"))),
   });
 
-  if (story.isLoading) return <p className="container-page py-16 text-muted">{t("common.loading")}</p>;
-  if (story.isError || !story.data) return <p className="container-page py-16 text-danger">{t("common.error")}</p>;
+  if (story.isLoading) {
+    return (
+      <div className="container-page">
+        <LoadingState label={t("common.loading")} />
+      </div>
+    );
+  }
+  if (story.isError || !story.data) return <div className="container-page py-16"><ErrorState label={t("common.error")} /></div>;
 
   const current = story.data;
   const canEdit = user?.id === current.created_by.id || user?.role === "admin";
   const canValidate = user?.role === "validator" || user?.role === "admin";
+  const readingDir = current.language === "fr" ? "ltr" : "rtl";
 
   return (
-    <article className="container-page py-10">
-      <Link className="text-sm font-semibold text-forest" to="/stories">
+    <article className="container-page py-12 md:py-16">
+      <Link className="text-sm font-medium text-forest" to="/stories">
         {t("story.back")}
       </Link>
-      <div className="mt-4 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm text-clay">{t("story.originCollected")}</p>
-          <h1 className="mt-2 text-4xl">{current.title}</h1>
-          <p className="mt-3 text-muted">{t("story.detailLead")}</p>
+      <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-b border-line pb-8">
+        <div className="max-w-3xl">
+          <p className="kicker">{t("story.originCollected")}</p>
+          <h1 className="mt-3 text-5xl leading-[0.95] md:text-6xl">{current.title}</h1>
+          <p className="mt-4 text-muted">{t("story.detailLead")}</p>
         </div>
         <StatusBadge status={current.validation_status} />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_0.8fr]">
-        <div className="card whitespace-pre-wrap leading-7">{current.original_content}</div>
-        <aside className="space-y-4">
-          <div className="card space-y-2 text-sm">
+      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.7fr)]">
+        <div
+          className="card whitespace-pre-wrap font-serif text-xl leading-9"
+          dir={readingDir}
+          lang={current.language === "ary" ? "ar" : current.language}
+        >
+          {current.original_content}
+        </div>
+        <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+          <div className="card space-y-3 text-sm">
             <p>
-              <span className="font-semibold">{t("story.by")}</span> {current.narrator_name}
+              <span className="font-medium">{t("story.by")}</span> {current.narrator_name}
             </p>
             <p>{t(`narrator.${current.narrator_role}`)}</p>
             <p>{t(`source.${current.source}`)}</p>
@@ -100,7 +114,7 @@ export function StoryDetailPage() {
               </p>
             ) : null}
           </div>
-          <p className="rounded-2xl border border-clay/40 bg-clay/10 p-4 text-sm">{t("story.notMedical")}</p>
+          <p className="rounded-[1.5rem] border border-gold/70 bg-gold/15 p-4 text-sm leading-6">{t("story.notMedical")}</p>
           <div className="flex flex-wrap gap-2">
             <button className="btn-secondary" type="button" onClick={() => favorite.mutate()}>
               {current.is_favorite ? t("story.favoriteRemove") : t("story.favoriteAdd")}

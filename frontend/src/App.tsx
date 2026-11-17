@@ -7,6 +7,7 @@ import { HomePage } from "./pages/HomePage";
 import { LoginPage, RegisterPage } from "./pages/AuthPages";
 import { ModulePage } from "./pages/ModulePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { StoryDetailPage } from "./pages/StoryDetailPage";
 import { StoryFormPage } from "./pages/StoryFormPage";
 import { StoryListPage } from "./pages/StoryListPage";
@@ -21,6 +22,7 @@ export function App() {
         <Route path="/categories" element={<CategoriesPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
           <Route path="/stories" element={<StoryListPage />} />
           <Route path="/stories/new" element={<StoryFormPage />} />
           <Route path="/stories/:storyId" element={<StoryDetailPage />} />

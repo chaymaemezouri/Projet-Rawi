@@ -4,6 +4,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { getErrorMessage } from "../api/client";
 import { createStory, fetchCategories, fetchStory, updateStory } from "../api/resources";
+import { AudioCapture } from "../components/studio/AudioCapture";
+import { SectionHeading } from "../components/ui/Chrome";
 import { categoryName } from "../lib/format";
 import type { LanguageCode, NarratorRole, StoryInput, StorySource } from "../types";
 
@@ -76,82 +78,85 @@ export function StoryFormPage() {
   }
 
   return (
-    <section className="container-page py-10">
-      <form onSubmit={onSubmit} className="card mx-auto max-w-3xl space-y-4" aria-label={t(isEdit ? "story.editTitle" : "story.newTitle")}>
-        <h1 className="text-4xl">{t(isEdit ? "story.editTitle" : "story.newTitle")}</h1>
-        <p className="text-sm text-muted">{t("story.contentHint")}</p>
-        <label className="block">
-          <span className="label">{t("story.title")}</span>
-          <input className="field" required minLength={3} value={title} onChange={(event) => setTitle(event.target.value)} />
-        </label>
-        <div className="grid gap-4 md:grid-cols-2">
-          <label>
-            <span className="label">{t("story.narrator")}</span>
-            <input className="field" required minLength={2} value={narratorName} onChange={(event) => setNarratorName(event.target.value)} />
+    <section className="container-page py-12 md:py-16">
+      <form onSubmit={onSubmit} className="mx-auto max-w-3xl space-y-6" aria-label={t(isEdit ? "story.editTitle" : "story.newTitle")}>
+        <SectionHeading as="h1" kicker={t("story.originCollected")} title={t(isEdit ? "story.editTitle" : "story.newTitle")} text={t("story.contentHint")} />
+        <AudioCapture />
+        <div className="card space-y-4">
+          <label className="block">
+            <span className="label">{t("story.title")}</span>
+            <input className="field" required minLength={3} value={title} onChange={(event) => setTitle(event.target.value)} />
           </label>
-          <label>
-            <span className="label">{t("story.narratorRole")}</span>
-            <select className="field" value={narratorRole} onChange={(event) => setNarratorRole(event.target.value as NarratorRole)}>
-              {NARRATORS.map((role) => (
-                <option key={role} value={role}>
-                  {t(`narrator.${role}`)}
+          <div className="grid gap-4 md:grid-cols-2">
+            <label>
+              <span className="label">{t("story.narrator")}</span>
+              <input className="field" required minLength={2} value={narratorName} onChange={(event) => setNarratorName(event.target.value)} />
+            </label>
+            <label>
+              <span className="label">{t("story.narratorRole")}</span>
+              <select className="field" value={narratorRole} onChange={(event) => setNarratorRole(event.target.value as NarratorRole)}>
+                {NARRATORS.map((role) => (
+                  <option key={role} value={role}>
+                    {t(`narrator.${role}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="label">{t("story.source")}</span>
+              <select className="field" value={source} onChange={(event) => setSource(event.target.value as StorySource)}>
+                {SOURCES.map((item) => (
+                  <option key={item} value={item}>
+                    {t(`source.${item}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className="label">{t("story.language")}</span>
+              <select className="field" value={language} onChange={(event) => setLanguage(event.target.value as LanguageCode)}>
+                {LANGUAGES.map((item) => (
+                  <option key={item} value={item}>
+                    {t(`lang.${item}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <label className="block">
+            <span className="label">
+              {t("story.category")} <span className="font-normal text-muted">({t("common.optional")})</span>
+            </span>
+            <select className="field" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+              <option value="">{t("category.none")}</option>
+              {categories.data?.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {categoryName(category, i18n.language)}
                 </option>
               ))}
             </select>
           </label>
-          <label>
-            <span className="label">{t("story.source")}</span>
-            <select className="field" value={source} onChange={(event) => setSource(event.target.value as StorySource)}>
-              {SOURCES.map((item) => (
-                <option key={item} value={item}>
-                  {t(`source.${item}`)}
-                </option>
-              ))}
-            </select>
+          <label className="block">
+            <span className="label">{t("story.content")}</span>
+            <textarea className="field min-h-48 font-serif text-lg leading-8" required minLength={10} value={content} onChange={(event) => setContent(event.target.value)} />
           </label>
-          <label>
-            <span className="label">{t("story.language")}</span>
-            <select className="field" value={language} onChange={(event) => setLanguage(event.target.value as LanguageCode)}>
-              {LANGUAGES.map((item) => (
-                <option key={item} value={item}>
-                  {t(`lang.${item}`)}
-                </option>
-              ))}
-            </select>
+          <label className="flex items-start gap-3 text-sm">
+            <input className="mt-1 h-4 w-4 accent-forest" type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
+            <span>
+              {t("story.consent")}
+              <span className="mt-1 block text-muted">{t("story.consentHelp")}</span>
+            </span>
           </label>
+          <p className="text-sm text-muted">{t("design.audioNotSent")}</p>
+          {error ? (
+            <p role="alert" className="text-sm text-danger">
+              {error}
+            </p>
+          ) : null}
+          <button className="btn" type="submit" disabled={mutation.isPending}>
+            {t("story.save")}
+          </button>
         </div>
-        <label className="block">
-          <span className="label">
-            {t("story.category")} <span className="font-normal text-muted">({t("common.optional")})</span>
-          </span>
-          <select className="field" value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
-            <option value="">{t("category.none")}</option>
-            {categories.data?.map((category) => (
-              <option key={category.id} value={category.id}>
-                {categoryName(category, i18n.language)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="block">
-          <span className="label">{t("story.content")}</span>
-          <textarea className="field min-h-48" required minLength={10} value={content} onChange={(event) => setContent(event.target.value)} />
-        </label>
-        <label className="flex items-start gap-3 text-sm">
-          <input className="mt-1" type="checkbox" checked={consent} onChange={(event) => setConsent(event.target.checked)} />
-          <span>
-            {t("story.consent")}
-            <span className="mt-1 block text-muted">{t("story.consentHelp")}</span>
-          </span>
-        </label>
-        {error ? (
-          <p role="alert" className="text-sm text-danger">
-            {error}
-          </p>
-        ) : null}
-        <button className="btn" type="submit" disabled={mutation.isPending}>
-          {t("story.save")}
-        </button>
       </form>
     </section>
   );

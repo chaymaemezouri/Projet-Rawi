@@ -33,28 +33,38 @@ export function LoginPage() {
   }
 
   return (
-    <section className="container-page py-12">
-      <form onSubmit={onSubmit} className="card mx-auto max-w-md space-y-4" aria-label={t("auth.loginTitle")}>
-        <h1 className="text-3xl">{t("auth.loginTitle")}</h1>
-        <label className="block">
-          <span className="label">{t("auth.email")}</span>
-          <input className="field" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} />
-        </label>
-        <label className="block">
-          <span className="label">{t("auth.password")}</span>
-          <input className="field" type="password" autoComplete="current-password" required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} />
-        </label>
-        {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        <button className="btn w-full" type="submit" disabled={pending}>
-          {t("auth.loginAction")}
-        </button>
-        <p className="text-sm text-muted">
-          {t("auth.needAccount")}{" "}
-          <Link className="font-semibold text-forest" to="/register">
-            {t("nav.register")}
-          </Link>
-        </p>
-      </form>
+    <section className="grid min-h-[70vh] lg:grid-cols-2">
+      <div className="relative hidden min-h-[28rem] lg:block">
+        <img src="/images/rawi-library.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+      </div>
+      <div className="flex items-center px-5 py-14">
+        <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4" aria-label={t("auth.loginTitle")}>
+          <p className="kicker">RAWI</p>
+          <h1 className="text-4xl">{t("auth.loginTitle")}</h1>
+          <label className="block">
+            <span className="label">{t("auth.email")}</span>
+            <input className="field" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} />
+          </label>
+          <label className="block">
+            <span className="label">{t("auth.password")}</span>
+            <input className="field" type="password" autoComplete="current-password" required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} />
+          </label>
+          {error ? (
+            <p role="alert" className="text-sm text-danger">
+              {error}
+            </p>
+          ) : null}
+          <button className="btn w-full" type="submit" disabled={pending}>
+            {t("auth.loginAction")}
+          </button>
+          <p className="text-sm text-muted">
+            {t("auth.needAccount")}{" "}
+            <Link className="font-medium text-forest" to="/register">
+              {t("nav.register")}
+            </Link>
+          </p>
+        </form>
+      </div>
     </section>
   );
 }
@@ -98,45 +108,55 @@ export function RegisterPage() {
   }
 
   return (
-    <section className="container-page py-12">
-      <form onSubmit={onSubmit} className="card mx-auto max-w-md space-y-4" aria-label={t("auth.registerTitle")}>
-        <h1 className="text-3xl">{t("auth.registerTitle")}</h1>
-        <p className="text-sm text-muted">{t("auth.helper")}</p>
-        <label className="block">
-          <span className="label">{t("auth.fullName")}</span>
-          <input className="field" required minLength={2} value={fullName} onChange={(event) => setFullName(event.target.value)} />
-        </label>
-        <label className="block">
-          <span className="label">{t("auth.email")}</span>
-          <input className="field" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} />
-        </label>
-        <label className="block">
-          <span className="label">{t("auth.password")}</span>
-          <input className="field" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} />
-        </label>
-        <label className="block">
-          <span className="label">{t("auth.confirm")}</span>
-          <input className="field" type="password" autoComplete="new-password" required minLength={8} value={confirm} onChange={(event) => setConfirm(event.target.value)} />
-        </label>
-        <label className="block">
-          <span className="label">{t("auth.language")}</span>
-          <select className="field" value={language} onChange={(event) => setLanguage(event.target.value as LanguageCode)}>
-            <option value="fr">{t("lang.fr")}</option>
-            <option value="ar">{t("lang.ar")}</option>
-            <option value="ary">{t("lang.ary")}</option>
-          </select>
-        </label>
-        {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
-        <button className="btn w-full" type="submit" disabled={pending}>
-          {t("auth.registerAction")}
-        </button>
-        <p className="text-sm text-muted">
-          {t("auth.haveAccount")}{" "}
-          <Link className="font-semibold text-forest" to="/login">
-            {t("nav.login")}
-          </Link>
-        </p>
-      </form>
+    <section className="grid min-h-[70vh] lg:grid-cols-2">
+      <div className="relative hidden min-h-[28rem] lg:block">
+        <img src="/images/rawi-botanical.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
+      </div>
+      <div className="flex items-center px-5 py-14">
+        <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4" aria-label={t("auth.registerTitle")}>
+          <p className="kicker">RAWI</p>
+          <h1 className="text-4xl">{t("auth.registerTitle")}</h1>
+          <p className="text-sm text-muted">{t("auth.helper")}</p>
+          <label className="block">
+            <span className="label">{t("auth.fullName")}</span>
+            <input className="field" required minLength={2} value={fullName} onChange={(event) => setFullName(event.target.value)} />
+          </label>
+          <label className="block">
+            <span className="label">{t("auth.email")}</span>
+            <input className="field" type="email" autoComplete="username" required value={email} onChange={(event) => setEmail(event.target.value)} />
+          </label>
+          <label className="block">
+            <span className="label">{t("auth.password")}</span>
+            <input className="field" type="password" autoComplete="new-password" required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} />
+          </label>
+          <label className="block">
+            <span className="label">{t("auth.confirm")}</span>
+            <input className="field" type="password" autoComplete="new-password" required minLength={8} value={confirm} onChange={(event) => setConfirm(event.target.value)} />
+          </label>
+          <label className="block">
+            <span className="label">{t("auth.language")}</span>
+            <select className="field" value={language} onChange={(event) => setLanguage(event.target.value as LanguageCode)}>
+              <option value="fr">{t("lang.fr")}</option>
+              <option value="ar">{t("lang.ar")}</option>
+              <option value="ary">{t("lang.ary")}</option>
+            </select>
+          </label>
+          {error ? (
+            <p role="alert" className="text-sm text-danger">
+              {error}
+            </p>
+          ) : null}
+          <button className="btn w-full" type="submit" disabled={pending}>
+            {t("auth.registerAction")}
+          </button>
+          <p className="text-sm text-muted">
+            {t("auth.haveAccount")}{" "}
+            <Link className="font-medium text-forest" to="/login">
+              {t("nav.login")}
+            </Link>
+          </p>
+        </form>
+      </div>
     </section>
   );
 }
