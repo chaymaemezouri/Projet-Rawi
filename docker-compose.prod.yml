@@ -1,0 +1,82 @@
+name: rawi
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: rawi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Définis POSTGRES_PASSWORD dans .env.production}
+      POSTGRES_DB: rawi
+    volumes:
+      - rawi_pg:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rawi -d rawi"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg://rawi:${POSTGRES_PASSWORD}@db:5432/rawi
+      JWT_SECRET: ${JWT_SECRET:?Définis JWT_SECRET dans .env.production}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: "720"
+      CORS_ORIGINS: ${CORS_ORIGINS:?Définis CORS_ORIGINS dans .env.production}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?Définis ADMIN_EMAIL dans .env.production}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Définis ADMIN_PASSWORD dans .env.production}
+      ADMIN_NAME: ${ADMIN_NAME:-Administrateur RAWI}
+    command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    ports:
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    profiles: ["https"]
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:?Définis SITE_ADDRESS, par exemple rawi.exemple.com}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+    restart: unless-stopped
+
+volumes:
+  rawi_pg:
+  caddy_data:
+  caddy_config:

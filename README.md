@@ -87,6 +87,10 @@ docker compose down
 
 `docker compose down -v` efface aussi la base.
 
+## Déploiement
+
+`docker-compose.yml` reste le démarrage local. Sur un serveur, les secrets vont dans `.env.production` (non versionné) et les conteneurs se lancent avec `docker-compose.prod.yml`. Ce fichier ne publie pas PostgreSQL, retire le rechargement de l'API et sert l'interface compilée. Le détail des commandes est dans `.env.production.example`.
+
 ## Parcours de vérification
 
 1. Ouvrir l'accueil.

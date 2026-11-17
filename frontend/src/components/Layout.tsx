@@ -6,8 +6,10 @@ import { Wordmark } from "./brand/Mark";
 import { PageTransition } from "./motion/Motion";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
-function itemClass(active: boolean) {
-  return `rounded-full px-3 py-2 text-sm transition ${active ? "bg-forest text-cream" : "text-ink hover:bg-cream"}`;
+function itemClass(active: boolean, onVideo: boolean) {
+  if (active) return "rounded-full px-3 py-2 text-sm transition bg-forest text-cream";
+  if (onVideo) return "rounded-full px-3 py-2 text-sm transition text-cream hover:bg-cream/15";
+  return "rounded-full px-3 py-2 text-sm transition text-ink hover:bg-cream";
 }
 
 function linkIsCurrent(to: string, pathname: string, isActive: boolean) {
@@ -20,10 +22,12 @@ function linkIsCurrent(to: string, pathname: string, isActive: boolean) {
 function Links({
   items,
   pathname,
+  onVideo,
   onNavigate,
 }: {
   items: readonly (readonly [string, string])[];
   pathname: string;
+  onVideo: boolean;
   onNavigate?: () => void;
 }) {
   return (
@@ -34,7 +38,7 @@ function Links({
           to={to}
           end={to === "/"}
           onClick={onNavigate}
-          className={({ isActive }) => itemClass(linkIsCurrent(to, pathname, isActive))}
+          className={({ isActive }) => itemClass(linkIsCurrent(to, pathname, isActive), onVideo)}
         >
           {label}
         </NavLink>
@@ -48,6 +52,9 @@ export function Layout() {
   const { user, logout, loading } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const home = location.pathname === "/";
+  const onVideo = home && !scrolled && !open;
 
   useEffect(() => {
     const apply = (language: string) => {
@@ -65,6 +72,17 @@ export function Layout() {
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!home) {
+      setScrolled(true);
+      return;
+    }
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [home]);
 
   useEffect(() => {
     if (!open) return;
@@ -98,24 +116,24 @@ export function Layout() {
       <a className="skip-link" href="#content">
         {t("design.skip")}
       </a>
-      <header className="sticky top-0 z-30 border-b border-line bg-paper">
-        <div className="h-px bg-gold" />
+      <header className={`sticky top-0 z-30 transition-colors duration-300 ${onVideo ? "bg-transparent" : "border-b border-line bg-paper"}`}>
+        <div className={onVideo ? "h-0" : "h-px bg-gold"} />
         <div className="container-page flex items-center justify-between gap-4 py-3 xl:grid xl:grid-cols-[1fr_auto_1fr] xl:items-center">
           <NavLink to="/" className="shrink-0 justify-self-start" onClick={() => setOpen(false)}>
             <Wordmark />
           </NavLink>
           <div className="hidden items-center justify-center gap-2 xl:flex">
             <nav className="flex items-center gap-1" aria-label="RAWI">
-              <Links items={primary} pathname={location.pathname} />
-              <a href="/#savoirs" className={itemClass(location.hash === "#savoirs")}>
+              <Links items={primary} pathname={location.pathname} onVideo={onVideo} />
+              <a href="/#savoirs" className={itemClass(location.hash === "#savoirs", onVideo)}>
                 {t("nav.explore")}
               </a>
-              <a href="/#parcours" className={itemClass(location.hash === "#parcours")}>
+              <a href="/#parcours" className={itemClass(location.hash === "#parcours", onVideo)}>
                 {t("nav.how")}
               </a>
               {user ? (
                 <details className="group relative">
-                  <summary className="cursor-pointer list-none rounded-full px-3 py-2 text-sm text-ink hover:bg-cream [&::-webkit-details-marker]:hidden">
+                  <summary className={`cursor-pointer list-none rounded-full px-3 py-2 text-sm [&::-webkit-details-marker]:hidden ${onVideo ? "text-cream hover:bg-cream/15" : "text-ink hover:bg-cream"}`}>
                     {t("design.atelier")}
                   </summary>
                   <div className="absolute end-0 z-20 mt-2 w-64 rounded-3xl border border-line bg-paper p-2 shadow-card">
@@ -135,17 +153,17 @@ export function Layout() {
             </nav>
             <LanguageSwitcher compact />
             {!loading && user ? (
-              <NavLink to="/profile" className={({ isActive }) => itemClass(isActive)}>
+              <NavLink to="/profile" className={({ isActive }) => itemClass(isActive, onVideo)}>
                 {t("design.profile")}
               </NavLink>
             ) : null}
             {!loading && !user ? (
-              <NavLink to="/login" className={({ isActive }) => itemClass(isActive)}>
+              <NavLink to="/login" className={({ isActive }) => itemClass(isActive, onVideo)}>
                 {t("nav.login")}
               </NavLink>
             ) : null}
             {!loading && user ? (
-              <button type="button" className="rounded-full px-3 py-2 text-sm text-ink hover:bg-cream" onClick={logout}>
+              <button type="button" className={`rounded-full px-3 py-2 text-sm ${onVideo ? "text-cream hover:bg-cream/15" : "text-ink hover:bg-cream"}`} onClick={logout}>
                 {t("nav.logout")}
               </button>
             ) : null}
@@ -168,21 +186,21 @@ export function Layout() {
         </div>
         {open ? (
           <nav id="site-menu" className="container-page flex flex-col gap-1 pb-5 xl:hidden">
-            <Links items={primary} pathname={location.pathname} onNavigate={() => setOpen(false)} />
-            <a href="/#savoirs" className={itemClass(location.hash === "#savoirs")} onClick={() => setOpen(false)}>
+            <Links items={primary} pathname={location.pathname} onVideo={false} onNavigate={() => setOpen(false)} />
+            <a href="/#savoirs" className={itemClass(location.hash === "#savoirs", false)} onClick={() => setOpen(false)}>
               {t("nav.explore")}
             </a>
-            <a href="/#parcours" className={itemClass(location.hash === "#parcours")} onClick={() => setOpen(false)}>
+            <a href="/#parcours" className={itemClass(location.hash === "#parcours", false)} onClick={() => setOpen(false)}>
               {t("nav.how")}
             </a>
-            {!loading && user ? <Links items={atelier} pathname={location.pathname} onNavigate={() => setOpen(false)} /> : null}
+            {!loading && user ? <Links items={atelier} pathname={location.pathname} onVideo={false} onNavigate={() => setOpen(false)} /> : null}
             {!loading && user ? (
-              <NavLink to="/profile" onClick={() => setOpen(false)} className={({ isActive }) => itemClass(isActive)}>
+              <NavLink to="/profile" onClick={() => setOpen(false)} className={({ isActive }) => itemClass(isActive, false)}>
                 {t("design.profile")}
               </NavLink>
             ) : null}
             {!loading && !user ? (
-              <NavLink to="/login" onClick={() => setOpen(false)} className={({ isActive }) => itemClass(isActive)}>
+              <NavLink to="/login" onClick={() => setOpen(false)} className={({ isActive }) => itemClass(isActive, false)}>
                 {t("nav.login")}
               </NavLink>
             ) : null}

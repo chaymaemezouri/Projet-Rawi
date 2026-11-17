@@ -34,7 +34,7 @@ export function HomePage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-ink text-cream lg:min-h-[88vh]">
+      <section className="relative -mt-24 overflow-hidden bg-ink text-cream lg:min-h-[88vh]">
         <div className="relative aspect-video w-full sm:h-[52vh] sm:aspect-auto lg:absolute lg:inset-0 lg:h-full">
           {reduce === false ? (
             <video

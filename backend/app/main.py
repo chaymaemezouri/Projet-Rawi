@@ -12,11 +12,24 @@ from app.db.session import SessionLocal
 logger = logging.getLogger(__name__)
 
 
+def _require_production_secrets(settings) -> None:
+    if settings.environment != "production":
+        return
+    if settings.jwt_secret.startswith("change-me") or len(settings.jwt_secret) < 32:
+        raise RuntimeError("JWT_SECRET doit être propre à ce serveur et contenir au moins 32 caractères.")
+    password = settings.admin_password or ""
+    if not settings.admin_email or password.startswith("change-me") or len(password) < 12:
+        raise RuntimeError(
+            "ADMIN_EMAIL et ADMIN_PASSWORD doivent être définis. Le mot de passe d'exemple est refusé en production."
+        )
+    if "://rawi:rawi@" in settings.database_url or "://rawi:change-me" in settings.database_url:
+        raise RuntimeError("Le mot de passe PostgreSQL d'exemple ne peut pas être utilisé en production.")
+
+
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     settings = get_settings()
-    if settings.environment == "production" and settings.jwt_secret.startswith("change-me"):
-        raise RuntimeError("JWT_SECRET doit être défini pour l'environnement de production.")
+    _require_production_secrets(settings)
     if settings.environment != "test":
         db = SessionLocal()
         try:
