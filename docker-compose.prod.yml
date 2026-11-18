@@ -60,23 +60,5 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  caddy:
-    image: caddy:2-alpine
-    profiles: ["https"]
-    environment:
-      SITE_ADDRESS: ${SITE_ADDRESS:?Définis SITE_ADDRESS, par exemple rawi.exemple.com}
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - frontend
-    restart: unless-stopped
-
 volumes:
   rawi_pg:
-  caddy_data:
-  caddy_config:
