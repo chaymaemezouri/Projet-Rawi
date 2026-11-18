@@ -86,6 +86,29 @@ def seed_admin(db: Session) -> None:
     db.commit()
 
 
+def seed_demo(db: Session) -> None:
+    settings = get_settings()
+    if not settings.demo_email or not settings.demo_password:
+        return
+    if settings.demo_password.startswith("change-me") or len(settings.demo_password) < 8:
+        logger.warning("DEMO_PASSWORD d'exemple ou trop court : aucun compte démo n'a été créé.")
+        return
+    email = settings.demo_email.strip().lower()
+    if db.scalar(select(User).where(User.email == email)):
+        return
+    db.add(
+        User(
+            email=email,
+            hashed_password=hash_password(settings.demo_password),
+            full_name=settings.demo_name.strip() or "Compte démo",
+            role=UserRole.contributor,
+            preferred_language=LanguageCode.fr,
+        )
+    )
+    db.commit()
+
+
 def seed_reference_data(db: Session) -> None:
     seed_categories(db)
     seed_admin(db)
+    seed_demo(db)

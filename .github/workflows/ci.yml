@@ -54,3 +54,34 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+
+  deploy:
+    needs: [backend, contracts, frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check deploy secrets
+        id: gate
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          if [ -n "$SSH_KEY" ] && [ -n "$SSH_HOST" ] && [ -n "$SSH_USER" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "Secrets SSH absents : le déploiement est ignoré. Les tests restent actifs."
+          fi
+      - name: Deploy RAWI
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/rawi_deploy
+          chmod 600 ~/.ssh/rawi_deploy
+          ssh -i ~/.ssh/rawi_deploy -o StrictHostKeyChecking=accept-new "$SSH_USER@$SSH_HOST" \
+            "cd /root/Projet-Rawi && git pull --ff-only origin main && docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build"

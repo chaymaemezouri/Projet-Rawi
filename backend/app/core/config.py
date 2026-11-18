@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     admin_email: str | None = None
     admin_password: str | None = None
     admin_name: str = "Administrateur RAWI"
+    demo_email: str | None = None
+    demo_password: str | None = None
+    demo_name: str = "Compte démo"
 
     model_config = SettingsConfigDict(
         env_file=(".env", "../.env"),
