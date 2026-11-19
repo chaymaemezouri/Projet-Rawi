@@ -7,6 +7,12 @@ import fr from "./locales/fr.json";
 const stored = localStorage.getItem("rawi_lang");
 const initial = stored === "ar" || stored === "ary" || stored === "fr" ? stored : "fr";
 
+function applyDocumentLanguage(language: string) {
+  const code = language.startsWith("ary") ? "ary" : language.startsWith("ar") ? "ar" : "fr";
+  document.documentElement.dir = code === "fr" ? "ltr" : "rtl";
+  document.documentElement.lang = code === "fr" ? "fr" : "ar";
+}
+
 void i18n.use(initReactI18next).init({
   resources: {
     fr: { translation: fr },
@@ -17,5 +23,8 @@ void i18n.use(initReactI18next).init({
   fallbackLng: "fr",
   interpolation: { escapeValue: false },
 });
+
+i18n.on("languageChanged", applyDocumentLanguage);
+applyDocumentLanguage(initial);
 
 export default i18n;

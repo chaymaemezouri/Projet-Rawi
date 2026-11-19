@@ -1,8 +1,9 @@
 import uuid
+from datetime import date
 
 from pydantic import BaseModel, Field, field_validator
 
-from app.core.enums import ContentOrigin, LanguageCode, NarratorRole, StorySource, ValidationStatus
+from app.core.enums import ContentOrigin, LanguageCode, NarratorRole, StorySource, ValidationStatus, WorkflowStatus
 from app.schemas import CategoryRead, UserPublic
 
 
@@ -15,6 +16,20 @@ class StoryWrite(BaseModel):
     original_content: str = Field(min_length=10, max_length=20000)
     consent: bool
     category_id: uuid.UUID | None = None
+    origin_place: str | None = None
+    transmission_note: str | None = None
+    collected_on: date | None = None
+    mentioned_ingredients: str | None = None
+    publish_authorized: bool = False
+    workflow_status: WorkflowStatus = WorkflowStatus.submitted
+
+    @field_validator("origin_place", "transmission_note", "mentioned_ingredients")
+    @classmethod
+    def blank_is_unknown(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        cleaned = " ".join(value.split())
+        return cleaned or None
 
     @field_validator("title", "narrator_name")
     @classmethod
@@ -29,14 +44,6 @@ class StoryWrite(BaseModel):
             raise ValueError("Le récit doit contenir au moins 10 caractères.")
         return cleaned
 
-    @field_validator("consent")
-    @classmethod
-    def require_consent(cls, value: bool) -> bool:
-        if value is not True:
-            raise ValueError("Le consentement explicite du contributeur est obligatoire.")
-        return value
-
-
 class ValidationUpdate(BaseModel):
     validation_status: ValidationStatus
 
@@ -50,6 +57,12 @@ class StoryRead(BaseModel):
     language: LanguageCode
     original_content: str
     consent: bool
+    origin_place: str | None = None
+    transmission_note: str | None = None
+    collected_on: date | None = None
+    mentioned_ingredients: str | None = None
+    publish_authorized: bool = False
+    workflow_status: WorkflowStatus = WorkflowStatus.submitted
     validation_status: ValidationStatus
     content_origin: ContentOrigin = ContentOrigin.collected
     category_id: uuid.UUID | None
@@ -58,6 +71,9 @@ class StoryRead(BaseModel):
     validated_by: UserPublic | None
     validated_at: object | None
     is_favorite: bool
+    has_image: bool = False
+    has_audio: bool = False
+    has_document: bool = False
     created_at: object
     updated_at: object
 
@@ -65,3 +81,13 @@ class StoryRead(BaseModel):
 class StoryList(BaseModel):
     items: list[StoryRead]
     total: int
+
+
+class SimilarReason(BaseModel):
+    code: str
+    detail: str | None = None
+
+
+class SimilarStory(BaseModel):
+    story: StoryRead
+    reasons: list[SimilarReason]

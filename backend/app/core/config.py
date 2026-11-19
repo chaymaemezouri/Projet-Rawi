@@ -16,6 +16,9 @@ class Settings(BaseSettings):
     demo_email: str | None = None
     demo_password: str | None = None
     demo_name: str = "Compte démo"
+    media_root: str = "var/media"
+    whisper_model: str = "tiny"
+    whisper_model_dir: str = "var/models"
 
     model_config = SettingsConfigDict(
         env_file=(".env", "../.env"),

@@ -1,8 +1,18 @@
 import { useState, type KeyboardEvent } from "react";
+import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../auth/AuthContext";
 
-const STEPS = ["collect", "structure", "compare", "review"] as const;
+const STEPS = ["collect", "compare", "review", "recipe", "guide"] as const;
+
+function stepHref(step: (typeof STEPS)[number], signedIn: boolean) {
+  if (step === "collect") return signedIn ? "/stories/new" : "/register";
+  if (step === "compare") return "/modules/analysis";
+  if (step === "review") return "/modules/validation";
+  if (step === "recipe") return "/modules/recipes";
+  return "/modules/guide";
+}
 
 function StageVisual({ step }: { step: (typeof STEPS)[number] }) {
   const { t } = useTranslation();
@@ -15,17 +25,6 @@ function StageVisual({ step }: { step: (typeof STEPS)[number] }) {
           <span className="inline-block h-4 w-4 border border-forest bg-forest" />
           {t("heritage.stepCollectVisual")}
         </p>
-      </div>
-    );
-  }
-  if (step === "structure") {
-    return (
-      <div className="flex flex-wrap gap-2" aria-hidden="true">
-        {["heritage.face", "heritage.hair", "heritage.hammam"].map((key) => (
-          <span key={key} className="border border-line px-3 py-2 text-sm">
-            {t(key)}
-          </span>
-        ))}
       </div>
     );
   }
@@ -45,16 +44,27 @@ function StageVisual({ step }: { step: (typeof STEPS)[number] }) {
       </div>
     );
   }
+  if (step === "review") {
+    return (
+      <div aria-hidden="true">
+        <span className="inline-block bg-gold/40 px-3 py-1 text-sm text-clay-ink">{t("status.pending")}</span>
+        <div className="mt-4 h-2 w-1/2 bg-line" />
+      </div>
+    );
+  }
   return (
-    <div aria-hidden="true">
-      <span className="inline-block bg-gold/40 px-3 py-1 text-sm text-clay-ink">{t("status.pending")}</span>
-      <div className="mt-4 h-2 w-1/2 bg-line" />
+    <div className="space-y-3" aria-hidden="true">
+      <div className="h-3 w-1/2 bg-forest/30" />
+      <div className="h-2 bg-line" />
+      <div className="h-2 w-4/5 bg-line" />
+      <div className="h-2 w-3/5 bg-line" />
     </div>
   );
 }
 
 export function KnowledgeJourney() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
   const step = STEPS[index];
@@ -74,13 +84,13 @@ export function KnowledgeJourney() {
   return (
     <div>
       <div className="relative" role="tablist" aria-label={t("heritage.journeyTitle")} onKeyDown={onKey}>
-        <div className="absolute inset-x-0 top-5 hidden h-px bg-line sm:block" aria-hidden="true">
+        <div className="absolute inset-x-0 top-5 hidden h-px bg-line lg:block" aria-hidden="true">
           <div
             className="h-px origin-left bg-forest rtl:origin-right"
             style={{ transform: `scaleX(${index / (STEPS.length - 1)})` }}
           />
         </div>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
           {STEPS.map((item, stepIndex) => {
             const active = stepIndex === index;
             return (
@@ -98,7 +108,7 @@ export function KnowledgeJourney() {
                 <span className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full border text-sm ${active ? "border-forest bg-forest text-cream" : "border-line bg-cream text-ink"}`}>
                   {String(stepIndex + 1).padStart(2, "0")}
                 </span>
-                <span className="mt-3 block text-sm">{t(`heritage.step${item[0].toUpperCase()}${item.slice(1)}`)}</span>
+                <span className={`mt-3 block text-sm ${active ? "font-semibold text-forest" : "text-ink"}`}>{t(`heritage.step${item[0].toUpperCase()}${item.slice(1)}`)}</span>
               </button>
             );
           })}
@@ -117,14 +127,15 @@ export function KnowledgeJourney() {
           transition={{ duration: reduce ? 0 : 0.28 }}
         >
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-clay-ink">{t("heritage.demoMark")}</p>
+            <p className="text-xs font-medium uppercase tracking-[0.18em] text-clay-ink rtl:tracking-normal">{t("heritage.demoMark")}</p>
             <div className="mt-5">
               <StageVisual step={step} />
             </div>
           </div>
           <div>
-            <h3 className="text-4xl">{t(`heritage.step${step[0].toUpperCase()}${step.slice(1)}`)}</h3>
-            <p className="mt-4 text-lg leading-8 text-muted">{t(`heritage.step${step[0].toUpperCase()}${step.slice(1)}Text`)}</p>
+            <h3 className="entry-title mt-0">{t(`heritage.step${step[0].toUpperCase()}${step.slice(1)}`)}</h3>
+            <p className="mt-4 text-base leading-7 text-muted">{t(`heritage.step${step[0].toUpperCase()}${step.slice(1)}Text`)}</p>
+            <Link className="btn mt-6" to={stepHref(step, Boolean(user))}>{t("heritage.openStep")}</Link>
           </div>
         </motion.div>
       </AnimatePresence>

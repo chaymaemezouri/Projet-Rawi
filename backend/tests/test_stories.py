@@ -52,7 +52,7 @@ def test_create_list_update_and_delete_story(client):
     assert hidden.json()["total"] == 0
 
     visible = client.get(f"/api/stories/{story['id']}", headers=auth_header(other))
-    assert visible.status_code == 200
+    assert visible.status_code == 404
 
     updated = client.patch(
         f"/api/stories/{story['id']}",
@@ -63,7 +63,7 @@ def test_create_list_update_and_delete_story(client):
     assert updated.json()["title"] == "Masque revu"
 
     forbidden = client.delete(f"/api/stories/{story['id']}", headers=auth_header(other))
-    assert forbidden.status_code == 403
+    assert forbidden.status_code == 404
 
     removed = client.delete(f"/api/stories/{story['id']}", headers=auth_header(owner))
     assert removed.status_code == 204
@@ -91,6 +91,17 @@ def test_human_validation_and_favorites(client, db_session):
         headers=auth_header(owner),
     )
     assert denied.status_code == 403
+    owner_account = db_session.scalar(select(User).where(User.email == "owner@rawi.test"))
+    owner_account.role = UserRole.validator
+    db_session.commit()
+    self_review = client.patch(
+        f"/api/stories/{story_id}/validation",
+        json={"validation_status": "validated"},
+        headers=auth_header(owner),
+    )
+    assert self_review.status_code == 403
+    owner_account.role = UserRole.contributor
+    db_session.commit()
 
     accepted = client.patch(
         f"/api/stories/{story_id}/validation",
@@ -98,9 +109,20 @@ def test_human_validation_and_favorites(client, db_session):
         headers=auth_header(reviewer),
     )
     assert accepted.status_code == 200
-    body = accepted.json()
+    assert accepted.json()["validation_status"] == "pending"
+    second = register(client, "reviewer-two@rawi.test", full_name="Nadia Bennis")
+    second_account = db_session.scalar(select(User).where(User.email == "reviewer-two@rawi.test"))
+    second_account.role = UserRole.validator
+    db_session.commit()
+    final = client.patch(
+        f"/api/stories/{story_id}/validation",
+        json={"validation_status": "validated"},
+        headers=auth_header(second),
+    )
+    assert final.status_code == 200
+    body = final.json()
     assert body["validation_status"] == "validated"
-    assert body["validated_by"]["email"] == "reviewer@rawi.test"
+    assert body["validated_by"]["email"] == "reviewer-two@rawi.test"
     assert body["content_origin"] == "collected"
 
     favorite = client.post(f"/api/stories/{story_id}/favorite", headers=auth_header(owner))
@@ -111,3 +133,44 @@ def test_human_validation_and_favorites(client, db_session):
 
     client.delete(f"/api/stories/{story_id}/favorite", headers=auth_header(owner))
     assert client.get("/api/me/favorites", headers=auth_header(owner)).json()["total"] == 0
+
+
+def test_draft_stays_private_and_unknown_origin_is_not_invented(client, db_session):
+    owner = register(client, "owner@rawi.test")
+    other = register(client, "other@rawi.test")
+    reviewer = register(client, "reviewer@rawi.test", full_name="Hassan Alami")
+    account = db_session.scalar(select(User).where(User.email == "reviewer@rawi.test"))
+    account.role = UserRole.validator
+    db_session.commit()
+
+    created = client.post(
+        "/api/stories",
+        json=story_payload(
+            _category_id(client),
+            workflow_status="draft",
+            consent=False,
+            origin_place="   ",
+            mentioned_ingredients="",
+        ),
+        headers=auth_header(owner),
+    )
+    assert created.status_code == 201
+    body = created.json()
+    assert body["workflow_status"] == "draft"
+    assert body["consent"] is False
+    assert body["origin_place"] is None
+    assert body["mentioned_ingredients"] is None
+    assert body["publish_authorized"] is False
+    story_id = body["id"]
+
+    hidden = client.get(f"/api/stories/{story_id}", headers=auth_header(other))
+    assert hidden.status_code == 404
+    visible = client.get("/api/stories", headers=auth_header(other))
+    assert all(item["id"] != story_id for item in visible.json()["items"])
+
+    own_review = client.patch(
+        f"/api/stories/{story_id}/validation",
+        json={"validation_status": "validated"},
+        headers=auth_header(reviewer),
+    )
+    assert own_review.status_code == 404

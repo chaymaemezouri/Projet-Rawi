@@ -8,8 +8,11 @@ from app.models import Category, Story
 from app.schemas import CategoryWrite
 
 
-def list_categories(db: Session) -> list[Category]:
-    return list(db.scalars(select(Category).order_by(Category.name_fr.asc())).all())
+def list_categories(db: Session, *, active_only: bool = True) -> list[Category]:
+    query = select(Category).order_by(Category.name_fr.asc())
+    if active_only:
+        query = query.where(Category.is_active.is_(True))
+    return list(db.scalars(query).all())
 
 
 def get_category(db: Session, category_id: uuid.UUID) -> Category:

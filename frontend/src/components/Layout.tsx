@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../auth/AuthContext";
 import { Wordmark } from "./brand/Mark";
 import { PageTransition } from "./motion/Motion";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ConfirmRoot } from "./ui/Confirm";
 
 function itemClass(active: boolean, onVideo: boolean) {
   if (active) return "rounded-full px-3 py-2 text-sm transition bg-forest text-cream";
@@ -53,6 +54,9 @@ export function Layout() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuWasOpen = useRef(false);
   const home = location.pathname === "/";
   const onVideo = home && !scrolled && !open;
 
@@ -68,6 +72,12 @@ export function Layout() {
       i18n.off("languageChanged", apply);
     };
   }, [i18n]);
+
+  useEffect(() => {
+    if (open) menuRef.current?.querySelector<HTMLElement>("a, button")?.focus();
+    else if (menuWasOpen.current) menuButtonRef.current?.focus();
+    menuWasOpen.current = open;
+  }, [open]);
 
   useEffect(() => {
     setOpen(false);
@@ -93,15 +103,14 @@ export function Layout() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const primary = loading
-    ? ([] as const)
-    : user
-      ? ([
-          ["/dashboard", t("nav.dashboard")],
-          ["/stories", t("nav.stories")],
-          ["/categories", t("nav.categories")],
-        ] as const)
-      : ([["/", t("nav.home")]] as const);
+  const primary: [string, string][] = [];
+  if (!loading && user) {
+    primary.push(["/dashboard", t("nav.dashboard")]);
+    if (user.role === "admin") primary.push(["/admin", t("nav.admin")]);
+    primary.push(["/stories", t("nav.stories")], ["/categories", t("nav.categories")]);
+  } else if (!loading) {
+    primary.push(["/", t("nav.home")]);
+  }
   const transmitTo = user ? "/stories/new" : "/register";
 
   const atelier = [
@@ -109,6 +118,7 @@ export function Layout() {
     ["/modules/analysis", t("nav.analysis")],
     ["/modules/validation", t("nav.validation")],
     ["/modules/recipes", t("nav.recipes")],
+    ["/modules/guide", t("nav.guide")],
   ] as const;
 
   return (
@@ -178,6 +188,7 @@ export function Layout() {
             className="btn-secondary shrink-0 px-4 xl:hidden"
             aria-expanded={open}
             aria-controls="site-menu"
+            ref={menuButtonRef}
             aria-label={open ? t("design.closeMenu") : t("design.openMenu")}
             onClick={() => setOpen((value) => !value)}
           >
@@ -185,7 +196,7 @@ export function Layout() {
           </button>
         </div>
         {open ? (
-          <nav id="site-menu" className="container-page flex flex-col gap-1 pb-5 xl:hidden">
+          <nav ref={menuRef} id="site-menu" aria-label={t("design.openMenu")} className="container-page flex flex-col gap-1 pb-5 xl:hidden">
             <Links items={primary} pathname={location.pathname} onVideo={false} onNavigate={() => setOpen(false)} />
             <a href="/#savoirs" className={itemClass(location.hash === "#savoirs", false)} onClick={() => setOpen(false)}>
               {t("nav.explore")}
@@ -272,6 +283,20 @@ export function Layout() {
           <p className="container-page py-4 text-center text-xs leading-6 text-cream/75">{t("footer.disclaimer")}</p>
         </div>
       </footer>
+      {!loading && !open && location.pathname !== "/stories/new" && location.pathname !== "/register" ? (
+        <nav aria-label={t("nav.transmit")} className="fixed bottom-5 end-5 z-40">
+          <Link
+            to={transmitTo}
+            className="inline-flex items-center gap-3 rounded-full bg-forest py-2 pe-2 ps-5 text-cream shadow-card transition hover:bg-forest-dark"
+          >
+            <span className="font-serif text-lg leading-none">{t("nav.transmit")}</span>
+            <span className="grid h-11 w-11 place-items-center rounded-full bg-cream text-lg text-forest rtl:rotate-180" aria-hidden="true">
+              →
+            </span>
+          </Link>
+        </nav>
+      ) : null}
+      <ConfirmRoot />
     </div>
   );
 }

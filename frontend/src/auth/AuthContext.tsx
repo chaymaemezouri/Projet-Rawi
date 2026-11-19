@@ -7,6 +7,7 @@ interface AuthState {
   user: User | null;
   loading: boolean;
   setSession: (token: string, user: User) => void;
+  replaceUser: (user: User) => void;
   logout: () => void;
 }
 
@@ -45,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         localStorage.setItem(TOKEN_KEY, token);
         setUser(nextUser);
       },
+      replaceUser: (nextUser) => setUser(nextUser),
       logout: () => {
         localStorage.removeItem(TOKEN_KEY);
         setUser(null);

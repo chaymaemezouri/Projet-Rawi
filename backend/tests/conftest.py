@@ -1,6 +1,8 @@
 import os
+import tempfile
 
 os.environ["ENVIRONMENT"] = "test"
+os.environ["MEDIA_ROOT"] = tempfile.mkdtemp(prefix="rawi-test-media-")
 os.environ["JWT_SECRET"] = "test-secret-key-not-for-production"
 os.environ["DATABASE_URL"] = "sqlite://"
 os.environ["ADMIN_EMAIL"] = ""

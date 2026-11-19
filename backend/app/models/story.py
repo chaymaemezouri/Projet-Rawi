@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text, Uuid, func
+from sqlalchemy import Boolean, Date, DateTime, Enum, ForeignKey, String, Text, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.core.enums import LanguageCode, NarratorRole, StorySource, ValidationStatus
+from app.core.enums import LanguageCode, NarratorRole, StorySource, ValidationStatus, WorkflowStatus
 from app.db.base import Base
 
 
@@ -30,6 +30,17 @@ class Story(Base):
     )
     original_content: Mapped[str] = mapped_column(Text, nullable=False)
     consent: Mapped[bool] = mapped_column(Boolean, nullable=False)
+    origin_place: Mapped[str | None] = mapped_column(String(160), nullable=True)
+    transmission_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+    collected_on: Mapped[date | None] = mapped_column(Date, nullable=True)
+    mentioned_ingredients: Mapped[str | None] = mapped_column(Text, nullable=True)
+    publish_authorized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    workflow_status: Mapped[WorkflowStatus] = mapped_column(
+        Enum(WorkflowStatus, name="workflow_status", native_enum=False, length=16),
+        nullable=False,
+        default=WorkflowStatus.submitted,
+        server_default=WorkflowStatus.submitted.value,
+    )
     validation_status: Mapped[ValidationStatus] = mapped_column(
         Enum(ValidationStatus, name="validation_status", native_enum=False, length=32),
         nullable=False,

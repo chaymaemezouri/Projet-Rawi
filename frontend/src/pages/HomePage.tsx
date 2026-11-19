@@ -72,9 +72,9 @@ export function HomePage() {
             <h1 className="mt-4 text-5xl leading-[0.98] text-cream sm:text-6xl lg:text-7xl">{t("home.title")}</h1>
             <p className="mt-5 max-w-md text-lg leading-8 text-cream/85">{t("home.lead")}</p>
             <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap">
-              <a className="btn-light" href="#savoirs">
+              <Link className="btn-light" to={user ? "/stories" : "/categories"}>
                 {t("nav.explore")}
-              </a>
+              </Link>
               <Link
                 className="inline-flex items-center justify-center rounded-full border border-cream/80 px-6 py-3 text-sm font-medium text-cream transition hover:bg-cream hover:text-forest"
                 to={transmit}

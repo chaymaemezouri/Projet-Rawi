@@ -16,6 +16,7 @@ class UserPublic(BaseModel):
     full_name: str
     role: str
     preferred_language: LanguageCode
+    is_active: bool = True
     created_at: object
 
 
@@ -30,6 +31,7 @@ class CategoryRead(BaseModel):
     description_fr: str
     description_ar: str
     description_ary: str
+    is_active: bool = True
     created_at: object
 
 

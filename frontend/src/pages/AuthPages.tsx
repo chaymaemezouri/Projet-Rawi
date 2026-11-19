@@ -38,7 +38,7 @@ export function LoginPage() {
         <img src="/images/rawi-library.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
       </div>
       <div className="flex items-center px-5 py-14">
-        <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4" aria-label={t("auth.loginTitle")}>
+        <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4" aria-label={t("auth.loginTitle")} aria-describedby={error ? "login-error" : undefined}>
           <p className="kicker">RAWI</p>
           <h1 className="text-4xl">{t("auth.loginTitle")}</h1>
           <label className="block">
@@ -50,7 +50,7 @@ export function LoginPage() {
             <input className="field" type="password" autoComplete="current-password" required minLength={8} value={password} onChange={(event) => setPassword(event.target.value)} />
           </label>
           {error ? (
-            <p role="alert" className="text-sm text-danger">
+            <p id="login-error" role="alert" className="text-sm text-danger">
               {error}
             </p>
           ) : null}
@@ -113,7 +113,7 @@ export function RegisterPage() {
         <img src="/images/rawi-botanical.jpg" alt="" className="absolute inset-0 h-full w-full object-cover" />
       </div>
       <div className="flex items-center px-5 py-14">
-        <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4" aria-label={t("auth.registerTitle")}>
+        <form onSubmit={onSubmit} className="card mx-auto w-full max-w-md space-y-4" aria-label={t("auth.registerTitle")} aria-describedby={error ? "register-error" : undefined}>
           <p className="kicker">RAWI</p>
           <h1 className="text-4xl">{t("auth.registerTitle")}</h1>
           <p className="text-sm text-muted">{t("auth.helper")}</p>
@@ -142,7 +142,7 @@ export function RegisterPage() {
             </select>
           </label>
           {error ? (
-            <p role="alert" className="text-sm text-danger">
+            <p id="register-error" role="alert" className="text-sm text-danger">
               {error}
             </p>
           ) : null}

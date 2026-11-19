@@ -31,6 +31,31 @@ class ValidationStatus(str, Enum):
     pending = "pending"
     validated = "validated"
     rejected = "rejected"
+    correction_requested = "correction_requested"
+
+
+class WorkflowStatus(str, Enum):
+    draft = "draft"
+    submitted = "submitted"
+
+
+class MediaKind(str, Enum):
+    audio = "audio"
+    image = "image"
+    document = "document"
+
+
+class EngineStatus(str, Enum):
+    pending = "pending"
+    processing = "processing"
+    unavailable = "unavailable"
+    completed = "completed"
+    failed = "failed"
+
+
+class CorrectionState(str, Enum):
+    open = "open"
+    answered = "answered"
 
 
 class ContentOrigin(str, Enum):

@@ -1,6 +1,6 @@
 import type { Category } from "../types";
 
-export function categoryName(category: Category, language: string): string {
+export function categoryName(category: { name_fr: string; name_ar: string; name_ary: string }, language: string): string {
   if (language === "ar") return category.name_ar;
   if (language === "ary") return category.name_ary;
   return category.name_fr;
@@ -12,7 +12,14 @@ export function categoryDescription(category: Category, language: string): strin
   return category.description_fr;
 }
 
+function localeFor(language: string) {
+  return language === "fr" ? "fr-MA" : "ar-MA";
+}
+
 export function formatDate(value: string, language: string): string {
-  const locale = language === "fr" ? "fr-MA" : "ar-MA";
-  return new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(value));
+  return new Intl.DateTimeFormat(localeFor(language), { dateStyle: "long" }).format(new Date(value));
+}
+
+export function formatCount(value: number, language: string): string {
+  return new Intl.NumberFormat(localeFor(language)).format(value);
 }
