@@ -38,7 +38,7 @@ function detailLabel(translate: (key: string) => string, detail: string) {
   }).join(" → ");
 }
 
-const SECTIONS = ["overview", "users", "validators", "categories", "moderation", "deletions", "journal", "exports"] as const;
+const SECTIONS = ["overview", "users", "validators", "categories", "moderation", "deletions", "journal", "exports", "library", "settings"] as const;
 type Section = (typeof SECTIONS)[number];
 const BARS = ["users", "stories", "categories", "pending_validations", "recipes", "deletions", "open_corrections"] as const;
 
@@ -82,6 +82,19 @@ export function AdminPage() {
           {section === "deletions" ? <Deletions onError={setError} /> : null}
           {section === "journal" ? <Journal /> : null}
           {section === "exports" ? <Exports onError={setError} /> : null}
+          {section === "library" ? (
+            <div className="rounded-[1.5rem] border border-dashed border-line bg-paper p-6">
+              <p className="kicker">{t("atlas.soon")}</p>
+              <p className="mt-4 leading-7">{t("admin.libraryText")}</p>
+              <Link className="btn mt-6" to="/themes">{t("nav.themes")}</Link>
+            </div>
+          ) : null}
+          {section === "settings" ? (
+            <div className="rounded-[1.5rem] border border-dashed border-line bg-paper p-6">
+              <p className="kicker">{t("atlas.soon")}</p>
+              <p className="mt-4 leading-7">{t("admin.settingsText")}</p>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>

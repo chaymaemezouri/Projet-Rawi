@@ -100,8 +100,13 @@ export function AudioCapture({ onPending }: { onPending?: (file: PendingFile | n
           <p className="mt-2 max-w-xl text-sm leading-6 text-muted">{t("collect.audioLead")}</p>
         </div>
         <div className="flex items-center gap-4">
-          <span className={`flex h-16 w-16 items-center justify-center ${state === "recording" ? "audio-live" : ""}`} aria-hidden="true">
-            <span className={`h-4 w-4 rounded-full ${state === "recording" ? "bg-clay" : state === "paused" ? "bg-gold" : "bg-forest"}`} />
+          <span className={`grid h-12 w-12 place-items-center rounded-full text-cream ${state === "recording" ? "audio-live bg-clay" : state === "paused" ? "bg-gold text-ink" : "bg-forest"}`} aria-hidden="true">
+            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.6">
+              <rect x="9" y="3.5" width="6" height="11" rx="3" />
+              <path d="M6.5 11a5.5 5.5 0 0 0 11 0" />
+              <path d="M12 16.5V20" />
+              <path d="M8.5 20h7" />
+            </svg>
           </span>
           <p className="text-sm font-medium" aria-live="polite">
             {statusLabel}

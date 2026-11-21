@@ -2,12 +2,10 @@ import { useState, type KeyboardEvent } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { useAuth } from "../../auth/AuthContext";
-
 const STEPS = ["collect", "compare", "review", "recipe", "guide"] as const;
 
-function stepHref(step: (typeof STEPS)[number], signedIn: boolean) {
-  if (step === "collect") return signedIn ? "/stories/new" : "/register";
+function stepHref(step: (typeof STEPS)[number]) {
+  if (step === "collect") return "/transmettre";
   if (step === "compare") return "/modules/analysis";
   if (step === "review") return "/modules/validation";
   if (step === "recipe") return "/modules/recipes";
@@ -64,7 +62,6 @@ function StageVisual({ step }: { step: (typeof STEPS)[number] }) {
 
 export function KnowledgeJourney() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
   const step = STEPS[index];
@@ -135,7 +132,7 @@ export function KnowledgeJourney() {
           <div>
             <h3 className="entry-title mt-0">{t(`heritage.step${step[0].toUpperCase()}${step.slice(1)}`)}</h3>
             <p className="mt-4 text-base leading-7 text-muted">{t(`heritage.step${step[0].toUpperCase()}${step.slice(1)}Text`)}</p>
-            <Link className="btn mt-6" to={stepHref(step, Boolean(user))}>{t("heritage.openStep")}</Link>
+            <Link className="btn mt-6" to={stepHref(step)}>{t("heritage.openStep")}</Link>
           </div>
         </motion.div>
       </AnimatePresence>

@@ -1,36 +1,24 @@
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { fetchCategories, fetchHealth } from "../api/resources";
-import { useAuth } from "../auth/AuthContext";
+import { fetchHealth } from "../api/resources";
 import { HeritageAudio } from "../components/home/HeritageAudio";
 import { IngredientExplorer } from "../components/home/IngredientExplorer";
 import { KnowledgeJourney } from "../components/home/KnowledgeJourney";
 import { motion, useReducedMotion } from "framer-motion";
 
 const UNIVERSES = [
-  { key: "face", image: "/images/rawi-rose.jpg", alt: "heritage.roseAlt", slugs: ["masque-visage"], area: "area-face", frame: "min-h-[24rem] md:min-h-[34rem]", position: "object-[28%_center]" },
-  { key: "hair", image: "/images/rawi-hair.jpg", alt: "heritage.hairAlt", slugs: ["soin-cheveux"], area: "area-hair", frame: "min-h-[16rem]", position: "object-[center_35%]" },
-  { key: "hammam", image: "/images/rawi-ritual.jpg", alt: "heritage.hammamAlt", slugs: ["gommage-hammam"], area: "area-hammam", frame: "min-h-[16rem] md:min-h-0", position: "object-center" },
-  { key: "oils", image: "/images/rawi-hands.jpg", alt: "heritage.oilsAlt", slugs: ["huile-massage"], area: "area-oils", frame: "min-h-[16rem]", position: "object-center" },
-  { key: "plants", image: "/images/rawi-botanical.jpg", alt: "heritage.plantsAlt", slugs: [] as string[], href: "/#botanique", area: "area-plants", frame: "min-h-[16rem]", position: "object-center" },
+  { key: "face", image: "/images/rawi-rose.jpg", alt: "heritage.roseAlt", href: "/themes/visage", area: "area-face", frame: "min-h-[24rem] md:min-h-[34rem]", position: "object-[28%_center]" },
+  { key: "hair", image: "/images/rawi-hair.jpg", alt: "heritage.hairAlt", href: "/themes/cheveux", area: "area-hair", frame: "min-h-[16rem]", position: "object-[center_35%]" },
+  { key: "hammam", image: "/images/rawi-ritual.jpg", alt: "heritage.hammamAlt", href: "/themes/hammam", area: "area-hammam", frame: "min-h-[16rem] md:min-h-0", position: "object-center" },
+  { key: "oils", image: "/images/rawi-hands.jpg", alt: "heritage.oilsAlt", href: "/themes/huiles", area: "area-oils", frame: "min-h-[16rem]", position: "object-center" },
+  { key: "plants", image: "/images/rawi-botanical.jpg", alt: "heritage.plantsAlt", href: "/themes", area: "area-plants", frame: "min-h-[16rem]", position: "object-center" },
 ] as const;
 
 export function HomePage() {
   const { t } = useTranslation();
-  const { user } = useAuth();
   const reduce = useReducedMotion();
   const health = useQuery({ queryKey: ["health"], queryFn: fetchHealth, retry: false });
-  const categories = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
-  const transmit = user ? "/stories/new" : "/register";
-
-  function universeHref(slugs: readonly string[], fallback?: string) {
-    if (fallback) return fallback;
-    const list = Array.isArray(categories.data) ? categories.data : [];
-    const match = list.find((category) => slugs.includes(category.slug));
-    if (match && user) return `/stories?category=${match.id}`;
-    return "/categories";
-  }
 
   return (
     <div>
@@ -72,12 +60,12 @@ export function HomePage() {
             <h1 className="mt-4 text-5xl leading-[0.98] text-cream sm:text-6xl lg:text-7xl">{t("home.title")}</h1>
             <p className="mt-5 max-w-md text-lg leading-8 text-cream/85">{t("home.lead")}</p>
             <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap">
-              <Link className="btn-light" to={user ? "/stories" : "/categories"}>
+              <Link className="btn-light" to="/explorer">
                 {t("nav.explore")}
               </Link>
               <Link
                 className="inline-flex items-center justify-center rounded-full border border-cream/80 px-6 py-3 text-sm font-medium text-cream transition hover:bg-cream hover:text-forest"
-                to={transmit}
+                to="/transmettre"
               >
                 {t("nav.transmit")}
               </Link>
@@ -97,7 +85,7 @@ export function HomePage() {
           {UNIVERSES.map((item) => (
             <Link
               key={item.key}
-              to={universeHref(item.slugs, "href" in item ? item.href : undefined)}
+              to={item.href}
               className={`zoom-frame group relative block focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest ${item.area} ${item.frame}`}
             >
               <img src={item.image} alt={t(item.alt)} className={`absolute inset-0 h-full w-full object-cover ${item.position}`} />
@@ -154,7 +142,7 @@ export function HomePage() {
         <div className="flex flex-col justify-center bg-forest px-5 py-12 text-cream sm:px-10 lg:col-span-3 lg:px-14 lg:py-16">
           <h2 className="max-w-xl text-4xl leading-tight md:text-5xl">{t("heritage.closingTitle")}</h2>
           <p className="mt-4 max-w-lg text-cream/80">{t("heritage.closingText")}</p>
-          <Link className="btn-light mt-8 w-fit" to={transmit}>
+          <Link className="btn-light mt-8 w-fit" to="/transmettre">
             {t("nav.share")}
           </Link>
         </div>

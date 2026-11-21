@@ -6,6 +6,7 @@ import { Wordmark } from "./brand/Mark";
 import { PageTransition } from "./motion/Motion";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ConfirmRoot } from "./ui/Confirm";
+import { TransmitFlow } from "../pages/PublicFlowPages";
 
 function itemClass(active: boolean, onVideo: boolean) {
   if (active) return "rounded-full px-3 py-2 text-sm transition bg-forest text-cream";
@@ -53,6 +54,7 @@ export function Layout() {
   const { user, logout, loading } = useAuth();
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [flowOpen, setFlowOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const menuRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -103,17 +105,21 @@ export function Layout() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
-  const primary: [string, string][] = [];
+  const primary: [string, string][] = [
+    ["/explorer", t("nav.explore")],
+    ["/themes", t("nav.themes")],
+    ["/comment-ca-marche", t("nav.how")],
+    ["/marques", t("nav.brands")],
+  ];
   if (!loading && user) {
     primary.push(["/dashboard", t("nav.dashboard")]);
+    if (user.role === "validator" || user.role === "admin") primary.push(["/expert", t("nav.expert")]);
     if (user.role === "admin") primary.push(["/admin", t("nav.admin")]);
-    primary.push(["/stories", t("nav.stories")], ["/categories", t("nav.categories")]);
-  } else if (!loading) {
-    primary.push(["/", t("nav.home")]);
   }
-  const transmitTo = user ? "/stories/new" : "/register";
+  const transmitTo = "/transmettre";
 
   const atelier = [
+    ["/stories", t("nav.stories")],
     ["/modules/ai", t("nav.ai")],
     ["/modules/analysis", t("nav.analysis")],
     ["/modules/validation", t("nav.validation")],
@@ -135,12 +141,6 @@ export function Layout() {
           <div className="hidden items-center justify-center gap-2 xl:flex">
             <nav className="flex items-center gap-1" aria-label="RAWI">
               <Links items={primary} pathname={location.pathname} onVideo={onVideo} />
-              <a href="/#savoirs" className={itemClass(location.hash === "#savoirs", onVideo)}>
-                {t("nav.explore")}
-              </a>
-              <a href="/#parcours" className={itemClass(location.hash === "#parcours", onVideo)}>
-                {t("nav.how")}
-              </a>
               {user ? (
                 <details className="group relative">
                   <summary className={`cursor-pointer list-none rounded-full px-3 py-2 text-sm [&::-webkit-details-marker]:hidden ${onVideo ? "text-cream hover:bg-cream/15" : "text-ink hover:bg-cream"}`}>
@@ -198,12 +198,6 @@ export function Layout() {
         {open ? (
           <nav ref={menuRef} id="site-menu" aria-label={t("design.openMenu")} className="container-page flex flex-col gap-1 pb-5 xl:hidden">
             <Links items={primary} pathname={location.pathname} onVideo={false} onNavigate={() => setOpen(false)} />
-            <a href="/#savoirs" className={itemClass(location.hash === "#savoirs", false)} onClick={() => setOpen(false)}>
-              {t("nav.explore")}
-            </a>
-            <a href="/#parcours" className={itemClass(location.hash === "#parcours", false)} onClick={() => setOpen(false)}>
-              {t("nav.how")}
-            </a>
             {!loading && user ? <Links items={atelier} pathname={location.pathname} onVideo={false} onNavigate={() => setOpen(false)} /> : null}
             {!loading && user ? (
               <NavLink to="/profile" onClick={() => setOpen(false)} className={({ isActive }) => itemClass(isActive, false)}>
@@ -250,19 +244,24 @@ export function Layout() {
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold rtl:tracking-normal">{t("footer.browseTitle")}</p>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <a className="text-cream/90 hover:text-cream" href="/#savoirs">
+                <Link className="text-cream/90 hover:text-cream" to="/explorer">
                   {t("nav.explore")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a className="text-cream/90 hover:text-cream" href="/#parcours">
+                <Link className="text-cream/90 hover:text-cream" to="/themes">
+                  {t("nav.themes")}
+                </Link>
+              </li>
+              <li>
+                <Link className="text-cream/90 hover:text-cream" to="/comment-ca-marche">
                   {t("nav.how")}
-                </a>
+                </Link>
               </li>
               <li>
-                <a className="text-cream/90 hover:text-cream" href="/#botanique">
-                  {t("footer.botanical")}
-                </a>
+                <Link className="text-cream/90 hover:text-cream" to="/marques">
+                  {t("nav.brands")}
+                </Link>
               </li>
               <li>
                 <Link className="text-cream/90 hover:text-cream" to="/categories">
@@ -283,19 +282,21 @@ export function Layout() {
           <p className="container-page py-4 text-center text-xs leading-6 text-cream/75">{t("footer.disclaimer")}</p>
         </div>
       </footer>
-      {!loading && !open && location.pathname !== "/stories/new" && location.pathname !== "/register" ? (
+      {!loading && !open && !flowOpen && location.pathname !== "/stories/new" && location.pathname !== "/register" && location.pathname !== "/transmettre" ? (
         <nav aria-label={t("nav.transmit")} className="fixed bottom-5 end-5 z-40">
-          <Link
-            to={transmitTo}
+          <button
+            type="button"
             className="inline-flex items-center gap-3 rounded-full bg-forest py-2 pe-2 ps-5 text-cream shadow-card transition hover:bg-forest-dark"
+            onClick={() => setFlowOpen(true)}
           >
             <span className="font-serif text-lg leading-none">{t("nav.transmit")}</span>
             <span className="grid h-11 w-11 place-items-center rounded-full bg-cream text-lg text-forest rtl:rotate-180" aria-hidden="true">
               →
             </span>
-          </Link>
+          </button>
         </nav>
       ) : null}
+      {flowOpen ? <TransmitFlow onClose={() => setFlowOpen(false)} /> : null}
       <ConfirmRoot />
     </div>
   );
