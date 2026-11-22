@@ -5,6 +5,9 @@ import { CORPS, MARIAGE, PLANTES } from "./universes-a";
 import { HAMMAM } from "./hammam";
 import { HUILES, MAINS, PARFUMS } from "./rest";
 import type { Body } from "./sheet";
+import { COMPLEX } from "./complexes";
+import { ingredientImage } from "./ingredientImage";
+import { widen } from "./pantries";
 import { VISAGE } from "./visage";
 
 export type Copy = { fr: string; ar: string; ary: string };
@@ -229,18 +232,18 @@ export const THEMES: Theme[] = [
 ];
 
 const PACKS: Record<string, Body[]> = {
-  visage: VISAGE,
-  cheveux: CHEVEUX,
-  hammam: HAMMAM,
-  huiles: HUILES,
+  visage: [...VISAGE, ...(COMPLEX.visage ?? [])],
+  cheveux: [...CHEVEUX, ...(COMPLEX.cheveux ?? [])],
+  hammam: [...HAMMAM, ...(COMPLEX.hammam ?? [])],
+  huiles: [...HUILES, ...(COMPLEX.huiles ?? [])],
   parfums: PARFUMS,
   mains: MAINS,
-  corps: CORPS,
-  plantes: PLANTES,
-  mariage: MARIAGE,
+  corps: [...CORPS, ...(COMPLEX.corps ?? [])],
+  plantes: [...PLANTES, ...(COMPLEX.plantes ?? [])],
+  mariage: [...MARIAGE, ...(COMPLEX.mariage ?? [])],
   levres: LEVRES,
   afrique: AFRIQUE,
-  encens: ENCENS,
+  encens: [...ENCENS, ...(COMPLEX.encens ?? [])],
   peaux: PEAUX,
   cils: CILS,
   saisons: SAISONS,
@@ -249,7 +252,9 @@ const PACKS: Record<string, Body[]> = {
 const LANGS = ["fr", "ar", "ary"] as const;
 
 export const RITUALS: Ritual[] = THEMES.flatMap((theme, themeIndex) =>
-  PACKS[theme.slug].map((body, index) => ({
+  PACKS[theme.slug].map((raw, index) => {
+    const body = widen(theme.slug, index, raw);
+    return {
     slug: `${theme.slug}-${index + 1}`,
     theme: theme.slug,
     image: IMAGES[(themeIndex + index) % IMAGES.length],
@@ -266,13 +271,14 @@ export const RITUALS: Ritual[] = THEMES.flatMap((theme, themeIndex) =>
     duration: body.duration,
     complexity: body.complexity,
     source: body.source,
-    ingredients: body.ingredients.map((item, shift) => ({
+    ingredients: body.ingredients.map((item) => ({
       name: item.name,
       note: item.note,
       original: item.original,
-      image: IMAGES[(themeIndex + index + shift) % IMAGES.length],
+      image: ingredientImage(item.name.fr),
     })),
-  })),
+    };
+  }),
 );
 
 export function themeBySlug(slug: string) {

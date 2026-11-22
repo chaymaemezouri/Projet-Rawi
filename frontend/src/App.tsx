@@ -19,7 +19,8 @@ import { StoryLabPage } from "./pages/StoryLabPage";
 import { StoryFormPage } from "./pages/StoryFormPage";
 import { StoryListPage } from "./pages/StoryListPage";
 import { ExplorePage, RitualPage, ThemeDetailPage, ThemesPage } from "./pages/LibraryPages";
-import { HowItWorksPage, TransmitPage } from "./pages/PublicFlowPages";
+import { TransmitPage } from "./pages/PublicFlowPages";
+import { HowItWorksPage } from "./pages/HowAiPage";
 import { ExpertPage } from "./pages/ExpertPage";
 import { BrandsPage } from "./pages/BrandsPage";
 
@@ -40,6 +41,7 @@ export function App() {
         <Route path="/marques" element={<BrandsPage />} />
         <Route path="/marques/ingredients" element={<BrandsPage />} />
         <Route path="/marques/tendances" element={<BrandsPage />} />
+        <Route path="/marques/:slug/:product" element={<BrandsPage />} />
         <Route path="/marques/:slug" element={<BrandsPage />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />

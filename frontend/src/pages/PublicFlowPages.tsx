@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { AudioCapture } from "../components/studio/AudioCapture";
-
-const PIPELINE = ["received", "waiting", "processing", "proposed", "human", "published"] as const;
 
 function ChoiceIcon({ kind }: { kind: "write" | "speak" }) {
   return (
@@ -22,31 +20,6 @@ function ChoiceIcon({ kind }: { kind: "write" | "speak" }) {
         </svg>
       )}
     </span>
-  );
-}
-
-export function HowItWorksPage() {
-  const { t } = useTranslation();
-  return (
-    <section className="container-page py-12 md:py-16">
-      <p className="kicker">{t("nav.how")}</p>
-      <h1 className="mt-3 max-w-3xl text-5xl">{t("atlas.howTitle")}</h1>
-      <p className="mt-4 max-w-2xl text-lg leading-8 text-muted">{t("atlas.howLead")}</p>
-      <ol className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {PIPELINE.map((step, index) => (
-          <li key={step} className="rounded-[1.5rem] border border-line bg-paper p-5">
-            <p className="font-serif text-3xl text-gold">{String(index + 1).padStart(2, "0")}</p>
-            <h2 className="mt-3 text-2xl">{t(`atlas.pipeline.${step}`)}</h2>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-8 max-w-2xl leading-7">{t("atlas.pipelineNote")}</p>
-      <p className="mt-3 max-w-2xl leading-7 text-muted">{t("atlas.unavailable")}</p>
-      <div className="mt-8 flex flex-wrap gap-3">
-        <Link className="btn" to="/transmettre">{t("nav.transmit")}</Link>
-        <Link className="btn-secondary" to="/themes">{t("nav.themes")}</Link>
-      </div>
-    </section>
   );
 }
 

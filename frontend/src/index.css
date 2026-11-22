@@ -6,6 +6,7 @@
   html {
     @apply bg-cream text-ink;
     scroll-behavior: smooth;
+    overflow-anchor: none;
   }
 
   body {
@@ -161,6 +162,52 @@
 
 .audio-live::after {
   animation-delay: 0.55s;
+}
+
+.product-rail {
+  animation: rawi-rail 46s linear infinite;
+}
+
+.product-rail:hover,
+.product-rail:focus-within {
+  animation-play-state: paused;
+}
+
+html[dir="rtl"] .product-rail {
+  animation-direction: reverse;
+}
+
+@keyframes rawi-rail {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-rail { animation: none; }
+}
+
+.ai-dot {
+  animation: ai-dot 3.2s ease-in-out infinite alternate;
+}
+
+.ai-flow {
+  background-image: linear-gradient(90deg, transparent, #7357F6, transparent);
+  background-size: 200% 100%;
+  animation: ai-flow 2.8s linear infinite;
+}
+
+@keyframes ai-dot {
+  from { left: 0; }
+  to { left: calc(100% - 0.75rem); }
+}
+
+@keyframes ai-flow {
+  from { background-position: 100% 0; }
+  to { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-dot, .ai-flow { animation: none; }
 }
 
 @keyframes rawi-pulse {

@@ -83,6 +83,11 @@ export function Layout() {
 
   useEffect(() => {
     setOpen(false);
+    const root = document.documentElement;
+    const previous = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollTo(0, 0);
+    root.style.scrollBehavior = previous;
   }, [location.pathname]);
 
   useEffect(() => {

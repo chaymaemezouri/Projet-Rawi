@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -299,6 +299,21 @@ export function RitualPage() {
   const { t } = useTranslation();
   const label = useCopy();
   const ritual = ritualBySlug(slug);
+  const [active, setActive] = useState("histoire");
+  const [stepOn, setStepOn] = useState(0);
+  useEffect(() => {
+    setStepOn(0);
+    setActive("histoire");
+    const nodes = ["histoire", "ingredients", "preparation", "usage", "duree", "variantes", "sources", "commentaires"]
+      .map((id) => document.getElementById(id))
+      .filter((node): node is HTMLElement => Boolean(node));
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+      if (visible?.target.id) setActive(visible.target.id);
+    }, { rootMargin: "-20% 0px -55% 0px", threshold: [0.15, 0.4] });
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, [slug]);
   if (!ritual) {
     return (
       <section className="container-page py-16">
@@ -328,98 +343,105 @@ export function RitualPage() {
     ["commentaires", t("atlas.comments")],
   ] as const;
   return (
-    <article className="container-page grid gap-8 py-8 lg:grid-cols-[16rem_1fr]">
-        <nav className="lg:sticky lg:top-28 lg:self-start" aria-label={t("atlas.toc")}>
-          <p className="kicker">{t("atlas.toc")}</p>
-          <ul className="mt-4 space-y-2 text-sm">
-            {sections.map(([id, name]) => (
-              <li key={id}><a className="text-forest hover:underline" href={`#${id}`}>{name}</a></li>
-            ))}
-          </ul>
-        </nav>
-        <div>
-          <header className="flex items-center gap-4 border-b border-line pb-4">
-            <img src={ritual.image} alt="" title={t("atlas.imageNote")} className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-gold/80" />
-            <div className="min-w-0">
-              <p className="kicker">{t("atlas.demo")}</p>
-              <h1 className="font-serif text-3xl leading-tight text-ink">{label(ritual.title)}</h1>
-              <p className="mt-1 text-sm leading-6 text-muted">{label(ritual.summary)}</p>
-              <p className="mt-1 text-xs text-muted">{t("atlas.imageNote")}</p>
-            </div>
-          </header>
-          <section id="histoire" className="mt-8">
-            <h2 className="section-title mt-0">{t("atlas.history")}</h2>
-            <p className="mt-4 text-lg leading-8">{label(ritual.history)}</p>
-            <h3 className="block-title">{t("atlas.transmission")}</h3>
-            <p className="mt-3 leading-7 text-muted">{label(ritual.voice)}</p>
-          </section>
-          <section id="ingredients" className="mt-10">
-            <h2 className="section-title mt-0">{t("atlas.ingredients")}</h2>
-            <ul className="mt-8 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
-              {ritual.ingredients.map((item, itemIndex) => (
-                <li key={`${item.name.fr}-${itemIndex}`} className="flex flex-col items-center text-center">
-                  <img src={item.image} alt="" className="h-40 w-40 rounded-full object-cover ring-4 ring-gold/80" />
-                  <p className="mt-4 font-serif text-2xl">{label(item.name)}</p>
-                  {item.original ? <p className="mt-1 text-xs text-clay-ink">{t("atlas.originalName")} · {label(item.original)}</p> : null}
-                  <p className="mt-2 max-w-xs text-sm leading-6 text-muted">{label(item.note)}</p>
-                </li>
-              ))}
-            </ul>
-          </section>
-          <section id="preparation" className="mt-10">
-            <h2 className="section-title mt-0">{t("atlas.timeline")}</h2>
-            <ol className="mt-6 space-y-6 border-s-2 border-gold/80 ps-6">
-              {ritual.steps.map((step, stepIndex) => (
-                <li key={step.fr} className="relative">
-                  <span className="absolute -start-[1.85rem] top-1 grid h-6 w-6 place-items-center rounded-full bg-forest text-xs text-cream">{stepIndex + 1}</span>
-                  <p className="leading-7">{label(step)}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-          <section id="usage" className="mt-10">
-            <h2 className="section-title mt-0">{t("atlas.usage")}</h2>
-            <p className="mt-4 text-lg leading-8">{label(ritual.usage)}</p>
-            <h3 className="block-title">{t("atlas.caution")}</h3>
-            <p className="mt-3 leading-7 text-muted">{label(ritual.caution)}</p>
-          </section>
-          <section id="duree" className="mt-10">
-            <h2 className="section-title mt-0">{t("atlas.duration")}</h2>
-            <p className="mt-4 text-lg leading-8">{label(ritual.duration)}</p>
-          </section>
-          <section id="variantes" className="mt-10">
-            <h2 className="section-title mt-0">{t("atlas.variants")}</h2>
-            <p className="mt-4 text-lg leading-8">{label(ritual.variants)}</p>
-          </section>
-          <section id="sources" className="mt-10">
-            <h2 className="section-title mt-0">{t("atlas.sources")}</h2>
-            <p className="mt-4 leading-7">{label(ritual.source)}</p>
-          </section>
-          <section id="commentaires" className="mt-14 border-t border-line pt-8">
-            <h2 className="font-serif text-3xl">{t("atlas.comments")}</h2>
-            <p className="mt-2 text-sm leading-6 text-muted">{t("atlas.commentsNote")}</p>
-            <ul className="mt-6 space-y-4">
-              {notes.map((note) => (
-                <li key={note.person.first.fr} className="flex gap-4 rounded-[1.25rem] bg-paper p-4">
-                  <img src={note.person.image} alt="" className="h-12 w-12 shrink-0 rounded-full object-cover object-top" />
-                  <div className="min-w-0">
-                    <p className="font-medium">{label(note.person.first)} {label(note.person.last)}</p>
-                    <p className="mt-1 leading-7">{label(note.text)}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-4 text-sm leading-6 text-muted">{t("atlas.notValidated")}</p>
-          </section>
-          <div className="mt-10 flex flex-wrap gap-3">
-            {previous ? <Link className="btn-secondary" to={`/rituels/${previous.slug}`}>{t("atlas.prev")}</Link> : null}
-            {next ? <Link className="btn-secondary" to={`/rituels/${next.slug}`}>{t("atlas.next")}</Link> : null}
-          </div>
-          <h2 className="section-title">{t("atlas.similar")}</h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            {similar.map((item) => <RitualCard key={item.slug} ritual={item} />)}
+    <article className="container-page space-y-6 py-8">
+      <header className="overflow-hidden rounded-[1.75rem] bg-paper shadow-card">
+        <div className="grid md:grid-cols-[16rem_1fr]">
+          <img src={ritual.image} alt="" className="h-52 w-full object-cover md:h-full" />
+          <div className="p-6 md:p-8">
+            <p className="kicker">{t("atlas.demo")}</p>
+            <h1 className="mt-2 font-serif text-4xl leading-tight text-ink">{label(ritual.title)}</h1>
+            <p className="mt-3 max-w-2xl leading-7 text-muted">{label(ritual.summary)}</p>
+            <p className="mt-3 text-xs text-muted">{t("atlas.imageNote")}</p>
           </div>
         </div>
+      </header>
+      <nav className="sticky top-20 z-20 -mx-1 flex gap-2 overflow-x-auto rounded-full bg-cream/90 p-1 backdrop-blur" aria-label={t("atlas.toc")}>
+        {sections.map(([id, name]) => (
+          <a key={id} href={`#${id}`} className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${active === id ? "bg-forest text-cream" : "text-ink hover:bg-paper"}`} onClick={() => setActive(id)}>{name}</a>
+        ))}
+      </nav>
+      <section id="histoire" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+        <h2 className="font-serif text-3xl">{t("atlas.history")}</h2>
+        <p className="mt-4 max-w-3xl text-lg leading-8">{label(ritual.history)}</p>
+        <div className="mt-6 rounded-2xl bg-cream p-5">
+          <h3 className="text-sm font-semibold text-forest">{t("atlas.transmission")}</h3>
+          <p className="mt-2 leading-7 text-muted">{label(ritual.voice)}</p>
+        </div>
+      </section>
+      <section id="ingredients" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+        <h2 className="font-serif text-3xl">{t("atlas.ingredients")}</h2>
+        <ul className="mt-8 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {ritual.ingredients.map((item, itemIndex) => (
+            <li key={`${item.name.fr}-${itemIndex}`} className="flex flex-col items-center text-center">
+              <img src={item.image} alt="" className="h-36 w-36 rounded-full object-cover ring-4 ring-gold/80 transition duration-300 hover:scale-105" />
+              <p className="mt-4 font-serif text-2xl">{label(item.name)}</p>
+              {item.original ? <p className="mt-1 text-xs text-clay-ink">{t("atlas.originalName")} · {label(item.original)}</p> : null}
+              <p className="mt-2 max-w-xs text-sm leading-6 text-muted">{label(item.note)}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <section id="preparation" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+        <h2 className="font-serif text-3xl">{t("atlas.timeline")}</h2>
+        <ol className="mt-6 grid gap-3">
+          {ritual.steps.map((step, stepIndex) => (
+            <li key={step.fr}>
+              <button type="button" className={`flex w-full items-start gap-4 rounded-2xl px-4 py-4 text-start transition ${stepOn === stepIndex ? "bg-forest text-cream" : "bg-cream hover:bg-gold/30"}`} onClick={() => setStepOn(stepIndex)} aria-pressed={stepOn === stepIndex}>
+                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm ${stepOn === stepIndex ? "bg-cream text-forest" : "bg-forest text-cream"}`}>{stepIndex + 1}</span>
+                <span className="leading-7">{label(step)}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section id="usage" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+        <h2 className="font-serif text-3xl">{t("atlas.usage")}</h2>
+        <p className="mt-4 max-w-3xl text-lg leading-8">{label(ritual.usage)}</p>
+        <div className="mt-6 rounded-2xl border border-gold/70 bg-cream p-5">
+          <h3 className="text-sm font-semibold text-forest">{t("atlas.caution")}</h3>
+          <p className="mt-2 leading-7">{label(ritual.caution)}</p>
+        </div>
+      </section>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <section id="duree" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+          <h2 className="font-serif text-3xl">{t("atlas.duration")}</h2>
+          <p className="mt-4 leading-8">{label(ritual.duration)}</p>
+        </section>
+        <section id="variantes" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+          <h2 className="font-serif text-3xl">{t("atlas.variants")}</h2>
+          <p className="mt-4 leading-8">{label(ritual.variants)}</p>
+        </section>
+      </div>
+      <section id="sources" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+        <h2 className="font-serif text-3xl">{t("atlas.sources")}</h2>
+        <p className="mt-4 max-w-3xl leading-7">{label(ritual.source)}</p>
+      </section>
+      <section id="commentaires" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+        <h2 className="font-serif text-3xl">{t("atlas.comments")}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">{t("atlas.commentsNote")}</p>
+        <ul className="mt-6 space-y-4">
+          {notes.map((note) => (
+            <li key={note.person.first.fr} className="flex gap-4 rounded-[1.25rem] bg-cream p-4">
+              <img src={note.person.image} alt="" className="h-12 w-12 shrink-0 rounded-full object-cover object-top" />
+              <div className="min-w-0">
+                <p className="font-medium">{label(note.person.first)} {label(note.person.last)}</p>
+                <p className="mt-1 leading-7">{label(note.text)}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-4 text-sm leading-6 text-muted">{t("atlas.notValidated")}</p>
+      </section>
+      <div className="flex flex-wrap gap-3">
+        {previous ? <Link className="btn-secondary" to={`/rituels/${previous.slug}`}>{t("atlas.prev")}</Link> : null}
+        {next ? <Link className="btn-secondary" to={`/rituels/${next.slug}`}>{t("atlas.next")}</Link> : null}
+      </div>
+      <section>
+        <h2 className="font-serif text-3xl">{t("atlas.similar")}</h2>
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {similar.map((item) => <RitualCard key={item.slug} ritual={item} />)}
+        </div>
+      </section>
     </article>
   );
 }
