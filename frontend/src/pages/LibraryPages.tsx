@@ -381,17 +381,31 @@ export function RitualPage() {
           ))}
         </ul>
       </section>
-      <section id="preparation" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
+      <section id="preparation" className="scroll-mt-36">
         <h2 className="font-serif text-3xl">{t("atlas.timeline")}</h2>
-        <ol className="mt-6 grid gap-3">
-          {ritual.steps.map((step, stepIndex) => (
-            <li key={step.fr}>
-              <button type="button" className={`flex w-full items-start gap-4 rounded-2xl px-4 py-4 text-start transition ${stepOn === stepIndex ? "bg-forest text-cream" : "bg-cream hover:bg-gold/30"}`} onClick={() => setStepOn(stepIndex)} aria-pressed={stepOn === stepIndex}>
-                <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm ${stepOn === stepIndex ? "bg-cream text-forest" : "bg-forest text-cream"}`}>{stepIndex + 1}</span>
-                <span className="leading-7">{label(step)}</span>
-              </button>
-            </li>
-          ))}
+        <ol className="mt-6">
+          {ritual.steps.map((step, stepIndex) => {
+            const selected = stepOn === stepIndex;
+            const linked = stepIndex < ritual.steps.length - 1;
+            return (
+              <li key={step.fr}>
+                <button
+                  type="button"
+                  className="flex w-full items-stretch gap-4 text-start"
+                  onClick={() => setStepOn(stepIndex)}
+                  aria-pressed={selected}
+                >
+                  <span className="relative w-8 shrink-0">
+                    {linked ? (
+                      <span className={`absolute left-1/2 top-8 bottom-0 w-px -translate-x-1/2 ${stepIndex < stepOn ? "bg-forest" : "bg-forest/25"}`} aria-hidden="true" />
+                    ) : null}
+                    <span className={`relative z-10 mt-1 grid h-8 w-8 place-items-center rounded-full text-sm ring-4 ring-cream ${selected ? "bg-forest text-cream" : "bg-cream text-forest"}`}>{stepIndex + 1}</span>
+                  </span>
+                  <span className={`min-w-0 flex-1 py-1 pb-6 leading-8 ${selected ? "font-medium text-forest" : "text-ink"}`}>{label(step)}</span>
+                </button>
+              </li>
+            );
+          })}
         </ol>
       </section>
       <section id="usage" className="scroll-mt-36 rounded-[1.75rem] bg-paper p-6 shadow-card md:p-8">
